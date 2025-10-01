@@ -1,0 +1,217 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum GenderEnum {
+  male
+  female
+}
+
+enum AgeGroupEnum {
+  ten   @map("10대")
+  twenty @map("20대")
+  thirty @map("30대")
+  forty  @map("40대")
+  fifty  @map("50대")
+  sixty  @map("60대")
+  seventy @map("70대")
+  eighty @map("80대")
+}
+
+enum RegionEnum {
+  seoul   @map("서울")
+  gyeonggi @map("경기")
+  incheon @map("인천")
+  gangwon @map("강원")
+  chungbuk @map("충북")
+  chungnam @map("충남")
+  sejong  @map("세종")
+  daejeon @map("대전")
+  jeonbuk @map("전북")
+  jeonnam @map("전남")
+  gwangju @map("광주")
+  gyeongbuk @map("경북")
+  gyeongnam @map("경남")
+  daegu   @map("대구")
+  ulsan   @map("울산")
+  busan   @map("부산")
+  jeju    @map("제주")
+}
+
+enum CarStatusEnum {
+  possession
+  contractProceeding
+  contractCompleted
+}
+
+enum ContractStatusEnum {
+  carInspection
+  priceNegotiation
+  contractDraft
+  contractSuccessful
+  contractFailed
+}
+
+enum CarModelTypeEnum {
+  COMPACT     @map("경차")
+  SEDAN       @map("세단")
+  SUV
+  HATCHBACK   @map("해치백")
+  CONVERTIBLE @map("컨버터블")
+  TRUCK       @map("트럭")
+  VAN         @map("밴")
+}
+
+model Company {
+  id          Int      @id @default(autoincrement())
+  companyName String   @unique @db.VarChar(100)
+  companyCode String   @unique @db.VarChar(50)
+  userCount   Int      @default(0)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  users       User[]
+  customers   Customer[]
+  cars        Car[]
+}
+
+model User {
+  id              Int       @id @default(autoincrement())
+  companyId       Int
+  name            String    @db.VarChar(50)
+  email           String    @unique @db.VarChar(255)
+  employeeNumber  String    @db.VarChar(50)
+  phoneNumber     String    @db.VarChar(20)
+  imageUrl        String?   @db.VarChar(2083)
+  isAdmin         Boolean   @default(false)
+  password        String    @db.VarChar(255)
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  company         Company     @relation(fields: [companyId], references: [id])
+  contracts       Contract[]
+  
+  @@unique([employeeNumber, companyId])
+}
+
+model Customer {
+  id            Int           @id @default(autoincrement())
+  companyId     Int
+  name          String        @db.VarChar(50)
+  gender        GenderEnum
+  phoneNumber   String        @db.VarChar(20)
+  ageGroup      AgeGroupEnum?
+  region        RegionEnum?
+  email         String?       @db.VarChar(255)
+  memo          String?       @db.Text
+  contractCount Int           @default(0)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  company       Company       @relation(fields: [companyId], references: [id])
+  contracts     Contract[]
+
+  @@unique([companyId, phoneNumber])
+  @@unique([companyId, email])
+}
+
+model Manufacturer {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique @db.VarChar(100)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  models    Model[]
+}
+
+model Model {
+  id              Int               @id @default(autoincrement())
+  manufacturerId  Int
+  modelName       String            @db.VarChar(100)
+  type            CarModelTypeEnum
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+
+  manufacturer    Manufacturer      @relation(fields: [manufacturerId], references: [id])
+  cars            Car[]
+
+  @@unique([manufacturerId, modelName])
+}
+
+model Car {
+  id                Int           @id @default(autoincrement())
+  modelId           Int
+  companyId         Int
+  carNumber         String        @db.VarChar(50)
+  manufacturingYear Int
+  mileage           Int
+  price             Int
+  accidentCount     Int           @default(0)
+  explanation       String?        @db.Text
+  accidentDetails   String?        @db.Text
+  status            CarStatusEnum @default(possession)
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  
+  model             Model         @relation(fields: [modelId], references: [id])
+  company           Company       @relation(fields: [companyId], references: [id])
+  contracts         Contract[]
+  
+  @@unique([companyId, carNumber])
+}
+
+model Contract {
+  id              Int                @id @default(autoincrement())
+  userId          Int
+  customerId      Int
+  carId           Int
+  status          ContractStatusEnum
+  resolutionDate  DateTime?          @db.Date
+  contractPrice   Int
+  contractName    String
+  documentsCount  Int                @default(0)
+  createdAt       DateTime           @default(now())
+  updatedAt       DateTime           @updatedAt
+
+  user            User               @relation(fields: [userId], references: [id])
+  customer        Customer           @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  car             Car                @relation(fields: [carId], references: [id], onDelete: Cascade)
+  meetings        Meeting[]
+  contractDocuments ContractDocument[]
+}
+
+model Meeting {
+  id          Int        @id @default(autoincrement())
+  contractId  Int
+  date        DateTime   @db.Timestamp()
+  alarms      DateTime[] @db.Timestamp()
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  
+  contract    Contract   @relation(fields: [contractId], references: [id], onDelete: Cascade)
+}
+
+model ContractDocument {
+  id          Int      @id @default(autoincrement())
+  contractId  Int
+  fileName    String   @db.VarChar(255)
+  fileUrl     String   @db.VarChar(2083)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  contract    Contract @relation(fields: [contractId], references: [id], onDelete: Cascade)
+}

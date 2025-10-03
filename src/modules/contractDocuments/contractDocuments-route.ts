@@ -10,7 +10,7 @@ const contractDocumentRouter = express.Router();
 //contractDocumentRouter.get('/', asyncHandler(contractDocumentController.getContractDocuments));
 
 // 게약서 추가 시 계약 목록 조회
-contractDocumentRouter.get('/draft');
+contractDocumentRouter.get('/draft', contractDocumentController.getContracts);
 
 // 계약서 업로드
 contractDocumentRouter.post(
@@ -20,6 +20,10 @@ contractDocumentRouter.post(
 );
 
 // 계약서 다운로드
-contractDocumentRouter.get('/:id/download', validateId, contractDocumentController.downloadContractDocument);
+contractDocumentRouter.get(
+  '/:id/download',
+  validateId,
+  asyncHandler(contractDocumentController.downloadContractDocument),
+);
 
 export { contractDocumentRouter };

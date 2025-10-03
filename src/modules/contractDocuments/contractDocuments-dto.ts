@@ -1,18 +1,43 @@
 import { z } from 'zod';
 import { validateParams } from '../../middlewares/validateParams.middleware';
+import type { ValidatedRequest } from '../../middlewares/validateParams.middleware';
 
+// 계약서 업로드
 export interface UploadContractDocumentData {
   fileName: string;
   fileUrl: string;
 }
 
+// 계약서 다운로드
+export interface DownloadContractDocumentRequest extends ValidatedRequest {
+  parsedParams: {
+    id: number;
+  };
+}
+
 // params
-export const idSchema = z
+const idSchema = z
   .object({
     id: z.string().regex(/^\d+$/, 'ID는 숫자 형식이어야 합니다.').transform(Number),
   })
   .strict();
 
-export type IdParams = z.infer<typeof idSchema>;
-
 export const validateId = validateParams(idSchema);
+
+// page
+export const offsetSchema = z.coerce.number().min(1).max(100).default(0);
+export const limitSchema = z.coerce.number().min(1).max(100).default(10);
+export const orderSchema = z.string().optional();
+export const searchSchema = z.string().optional();
+
+// 모든 게시글 조회 (query)
+const getArticlesSchema = {
+  query: z
+    .object({
+      offset: z.coerce.number().min(1).max(100).default(0),
+      limit: z.coerce.number().min(1).max(100).default(10),
+      order: z.string().optional(),
+      search: z.string().optional(),
+    })
+    .strict(),
+};

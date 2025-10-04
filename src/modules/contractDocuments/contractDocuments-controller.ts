@@ -3,6 +3,7 @@ import type { Request, Response } from 'express';
 import type { DownloadContractDocumentRequest } from './contractDocuments-dto.js';
 
 // 계약서 업로드 시 계약 목록 조회
+export const getContractDocuments = async (req: Request, res: Response) => {};
 
 // 게약서 추가 시 계약 목록 조회
 export const getContracts = async (req: Request, res: Response) => {

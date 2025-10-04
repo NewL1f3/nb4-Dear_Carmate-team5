@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import { validateParams } from '../../middlewares/validateParams.middleware';
-import type { ValidatedRequest } from '../../middlewares/validateParams.middleware';
+import { validateParams, validateQuery } from '../../middlewares/validate.middleware';
+import type { ValidatedRequest } from '../../middlewares/validate.middleware';
 
 // 계약서 업로드
 export interface UploadContractDocumentData {
@@ -30,8 +30,8 @@ export const limitSchema = z.coerce.number().min(1).max(100).default(10);
 export const orderSchema = z.string().optional();
 export const searchSchema = z.string().optional();
 
-// 모든 게시글 조회 (query)
-const getArticlesSchema = {
+// 모든 계약서 조회 (query)
+const getContractDocumentsSchema = {
   query: z
     .object({
       offset: z.coerce.number().min(1).max(100).default(0),
@@ -41,3 +41,5 @@ const getArticlesSchema = {
     })
     .strict(),
 };
+
+export const validateGetQuery = validateQuery(getContractDocumentsSchema);

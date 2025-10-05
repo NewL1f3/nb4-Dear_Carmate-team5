@@ -1,8 +1,91 @@
 import * as contractDocumentRepository from './contractDocuments-repository.js';
-import type { UploadContractDocumentData } from './contractDocuments-dto.js';
+import type { GetContractDocumentsQuery, UploadContractDocumentData } from './contractDocuments-dto.js';
 import type { Prisma } from '@prisma/client';
 
 // 계약서 업로드 시 계약 목록 조회
+export const getContractDocuments = async (query: GetContractDocumentsQuery, userId: number) => {
+  const { page = 1, pageSize = 8, searchBy, keyword } = query;
+  // 페이지 네이션 offset 방식
+  const take = pageSize;
+  const skip = (page - 1) * take;
+
+  // 인가자(현재 사용자) 회사 확인
+  const company = await contractDocumentRepository.findCompany(userId);
+  if (!company) throw new Error('사용자 회사를 찾을 수 없습니다.');
+
+  const companyId = company.company.id;
+
+  // 검색 기능 추가
+  let search: Prisma.ContractWhereInput = {};
+  if (keyword && searchBy) {
+    switch (searchBy) {
+      case 'contractName':
+        search = { contractName: { contains: keyword, mode: 'insensitive' } };
+        break;
+      case 'carNumber':
+        search = {
+          car: {
+            is: {
+              carNumber: { contains: keyword, mode: 'insensitive' },
+            },
+          },
+        };
+        break;
+      case 'userName':
+        search = {
+          user: {
+            is: {
+              name: { contains: keyword, mode: 'insensitive' },
+            },
+          },
+        };
+        break;
+    }
+  }
+
+  // where 조건 추가
+  const where: Prisma.ContractWhereInput = {
+    status: 'contractSuccessful',
+    companyId,
+    ...search,
+    // 조건: 계약서가 1개 이상
+    contractDocuments: { some: {} },
+  };
+
+  // query 구성 (페이지 네이션, 정렬 포함)
+  const contractDocumentsQuery: Prisma.ContractFindManyArgs = {
+    where,
+    take,
+    skip,
+    orderBy: {
+      createdAt: 'asc',
+    },
+  };
+
+  // 계약 총 count 확인
+  const totalItemCount = await contractDocumentRepository.countContracts(where);
+  const totalPages = Math.ceil(totalItemCount / take);
+
+  const rawData = await contractDocumentRepository.getContractDocuments(contractDocumentsQuery);
+
+  // 데이터 가공
+  const data = rawData.map((contract) => ({
+    id: contract.id,
+    contractName: contract.contractName,
+    resolutionDate: contract.resolutionDate,
+    documentsCount: contract.documentsCount,
+    manager: contract.user.name,
+    carNumber: contract.car.carNumber,
+    documents: contract.contractDocuments,
+  }));
+
+  return {
+    currentPage: page,
+    totalPages,
+    totalItemCount,
+    data,
+  };
+};
 
 // 게약서 추가 시 계약 목록 조회
 export const getContracts = async (userId: number) => {
@@ -11,14 +94,30 @@ export const getContracts = async (userId: number) => {
   if (!company) throw new Error('사용자 회사를 찾을 수 없습니다.');
 
   const companyId = company.company.id;
+
+  // where 조건 추가
   const where: Prisma.ContractWhereInput = {
     status: 'contractSuccessful',
     companyId,
+    // 조건: 계약서가 0개
+    contractDocuments: { none: {} },
   };
 
-  const contracsQuery: Prisma.ContractFindManyArgs = { where };
+  // query 구성 (정렬 포함)
+  const contracsQuery: Prisma.ContractFindManyArgs = {
+    where,
+    orderBy: {
+      createdAt: 'asc',
+    },
+  };
 
-  const contracs = await contractDocumentRepository.getContracts(contracsQuery);
+  const rawData = await contractDocumentRepository.getContracts(contracsQuery);
+
+  // 데이터 가공
+  const contracs = rawData.map((contract) => ({
+    id: contract.id,
+    data: contract.contractName,
+  }));
 
   return contracs;
 };
@@ -34,7 +133,9 @@ export const uploadContractDocument = async (data: UploadContractDocumentData) =
 
   const contractDocument = await contractDocumentRepository.uploadContractDocument(createData);
 
-  return contractDocument;
+  return {
+    contractDocumentId: contractDocument.id,
+  };
 };
 
 // 계약서 다운로드

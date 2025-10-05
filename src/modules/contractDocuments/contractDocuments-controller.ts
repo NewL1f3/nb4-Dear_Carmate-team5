@@ -1,9 +1,17 @@
 import * as contractDocumentService from './contractDocuments-service.js';
 import type { Request, Response } from 'express';
-import type { DownloadContractDocumentRequest } from './contractDocuments-dto.js';
+import type { DownloadContractDocumentRequest, GetContractDocumentsRequest } from './contractDocuments-dto.js';
 
 // 계약서 업로드 시 계약 목록 조회
-export const getContractDocuments = async (req: Request, res: Response) => {};
+export const getContractDocuments = async (req: GetContractDocumentsRequest, res: Response) => {
+  const query = req.parsedQuery;
+
+  if (!req.user) throw new Error('사용자 인증이 필요합니다.');
+  const userId = req.user.id;
+
+  const contractDocuments = await contractDocumentService.getContractDocuments(query, userId);
+  return res.status(200).json({ ...contractDocuments });
+};
 
 // 게약서 추가 시 계약 목록 조회
 export const getContracts = async (req: Request, res: Response) => {
@@ -11,7 +19,7 @@ export const getContracts = async (req: Request, res: Response) => {
   const userId = req.user.id;
 
   const contracs = await contractDocumentService.getContracts(userId);
-  return res.status(200).json({ success: true, data: contracs });
+  return res.status(200).json({ ...contracs });
 };
 
 // 계약서 업로드
@@ -24,7 +32,7 @@ export const uploadContractDocument = async (req: Request, res: Response) => {
 
   const data = { fileName, fileUrl };
   const contractDocument = await contractDocumentService.uploadContractDocument(data);
-  return res.status(201).json({ success: true, data: contractDocument });
+  return res.status(201).json({ ...contractDocument });
 };
 
 // 계약서 다운로드

@@ -2,6 +2,26 @@ import { z } from 'zod';
 import { validateParams, validateQuery } from '../../middlewares/validate.middleware';
 import type { ValidatedRequest } from '../../middlewares/validate.middleware';
 
+// ----------
+// |  TYPE  |
+// ----------
+
+// 계약서 업로드 시 계약 목록 조회
+export interface GetContractDocumentsRequest extends ValidatedRequest {
+  parsedQuery: {
+    searchBy?: string;
+    keyword?: string;
+    page?: number;
+  };
+}
+
+export interface GetContractDocumentsQuery {
+  searchBy?: string;
+  keyword?: string;
+  page?: number;
+  pageSize?: number;
+}
+
 // 계약서 업로드
 export interface UploadContractDocumentData {
   fileName: string;
@@ -15,6 +35,20 @@ export interface DownloadContractDocumentRequest extends ValidatedRequest {
   };
 }
 
+// -----------------
+// |  ZOD SCHEMAS  |
+// -----------------
+
+// query
+const getContractDocumentsSchema = z
+  .object({
+    searchBy: z.string().max(100).optional(), //userName, contractName, carNumber, pageSize=8
+    keyword: z.string().max(100).optional(),
+    page: z.coerce.number().min(1).max(100).default(1),
+    pageSize: z.coerce.number().min(8).max(8).default(8),
+  })
+  .strict();
+
 // params
 const idSchema = z
   .object({
@@ -22,24 +56,12 @@ const idSchema = z
   })
   .strict();
 
-export const validateId = validateParams(idSchema);
+// ----------------
+// |  VALIDATORS  |
+// ----------------
 
-// page
-export const offsetSchema = z.coerce.number().min(1).max(100).default(0);
-export const limitSchema = z.coerce.number().min(1).max(100).default(10);
-export const orderSchema = z.string().optional();
-export const searchSchema = z.string().optional();
-
-// 모든 계약서 조회 (query)
-const getContractDocumentsSchema = {
-  query: z
-    .object({
-      offset: z.coerce.number().min(1).max(100).default(0),
-      limit: z.coerce.number().min(1).max(100).default(10),
-      order: z.string().optional(),
-      search: z.string().optional(),
-    })
-    .strict(),
-};
-
+// query
 export const validateGetQuery = validateQuery(getContractDocumentsSchema);
+
+// params
+export const validateId = validateParams(idSchema);

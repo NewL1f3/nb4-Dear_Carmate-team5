@@ -2,8 +2,37 @@ import prisma from '../../lib/prisma.js';
 import type { Prisma } from '@prisma/client';
 
 // 계약서 업로드 시 계약 목록 조회
+export const getContractDocuments = async (contractDocumentsQuery: Prisma.ContractFindManyArgs) => {
+  const contractDocuments = await prisma.contract.findMany({
+    ...contractDocumentsQuery,
+    select: {
+      id: true,
+      contractName: true,
+      resolutionDate: true,
+      documentsCount: true,
+      user: {
+        select: {
+          name: true,
+        },
+      },
+      car: {
+        select: {
+          carNumber: true,
+        },
+      },
+      contractDocuments: {
+        select: {
+          id: true,
+          fileName: true,
+        },
+      },
+    },
+  });
 
-// 게약서 추가 시 계약 목록 조회
+  return contractDocuments;
+};
+
+// 계약서 추가 시 계약 목록 조회
 export const getContracts = async (contracsQuery: Prisma.ContractFindManyArgs) => {
   const contracs = await prisma.contract.findMany({
     ...contracsQuery,
@@ -50,7 +79,7 @@ export const findContractDocument = async (id: number) => {
   return contractDocument;
 };
 
-// 회사 확인
+// 인가자(현재 사용자) 회사 확인
 export const findCompany = async (userId: number) => {
   const company = await prisma.user.findUnique({
     where: { id: userId },
@@ -64,4 +93,13 @@ export const findCompany = async (userId: number) => {
   });
 
   return company;
+};
+
+// 계약 총 count 확인
+export const countContracts = async (where: Prisma.ContractWhereInput) => {
+  const totalItemCount = await prisma.contract.count({
+    where,
+  });
+
+  return totalItemCount;
 };

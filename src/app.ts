@@ -1,6 +1,6 @@
 import express from 'express';
 import dotenv from 'dotenv';
-import { contractDocumentRouter } from './modules/contractDocuments/contractDocuments-route.js';
+import { contractDocumentRouter } from './modules/contract-documents/contract-documents-route.js';
 
 dotenv.config();
 

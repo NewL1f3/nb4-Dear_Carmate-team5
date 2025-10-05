@@ -1,5 +1,5 @@
 import type { Request, Response, NextFunction } from 'express';
-import type { ZodObject, ZodRawShape, z } from 'zod';
+import type { ZodObject, ZodRawShape } from 'zod';
 
 export interface ValidatedRequest extends Request {
   parsedParams?: unknown;

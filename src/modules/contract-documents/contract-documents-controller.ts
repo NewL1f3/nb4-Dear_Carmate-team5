@@ -1,4 +1,4 @@
-import * as contractDocumentService from './contractDocuments-service.js';
+import * as contractDocumentService from './contract-documents-service.js';
 import type { Request, Response } from 'express';
 import type { DownloadContractDocumentRequest, GetContractDocumentsRequest } from './contract-documents-dto.js';
 

@@ -1,6 +1,6 @@
 import { z } from 'zod';
-import { validateParams, validateQuery } from '../../middlewares/validate.middleware';
-import type { ValidatedRequest } from '../../middlewares/validate.middleware';
+import { validateParams, validateQuery } from '../../middlewares/validate-middleware';
+import type { ValidatedRequest } from '../../middlewares/validate-middleware';
 
 // ----------
 // |  TYPE  |

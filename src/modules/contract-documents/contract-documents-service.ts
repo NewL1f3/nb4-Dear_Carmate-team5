@@ -1,4 +1,4 @@
-import * as contractDocumentRepository from './contractDocuments-repository.js';
+import * as contractDocumentRepository from './contract-documents-repository.js';
 import type { GetContractDocumentsQuery, UploadContractDocumentData } from './contract-documents-dto.js';
 import type { Prisma } from '@prisma/client';
 

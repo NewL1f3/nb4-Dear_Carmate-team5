@@ -1,6 +1,6 @@
 import * as contractDocumentService from './contractDocuments-service.js';
 import type { Request, Response } from 'express';
-import type { DownloadContractDocumentRequest, GetContractDocumentsRequest } from './contractDocuments-dto.js';
+import type { DownloadContractDocumentRequest, GetContractDocumentsRequest } from './contract-documents-dto.js';
 
 // 계약서 업로드 시 계약 목록 조회
 export const getContractDocuments = async (req: GetContractDocumentsRequest, res: Response) => {
@@ -13,7 +13,7 @@ export const getContractDocuments = async (req: GetContractDocumentsRequest, res
   return res.status(200).json({ ...contractDocuments });
 };
 
-// 게약서 추가 시 계약 목록 조회
+// 계약서 추가 시 계약 목록 조회
 export const getContracts = async (req: Request, res: Response) => {
   if (!req.user) throw new Error('사용자 인증이 필요합니다.');
   const userId = req.user.id;

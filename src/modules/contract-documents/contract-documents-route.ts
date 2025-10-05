@@ -1,15 +1,15 @@
 import express from 'express';
-import * as contractDocumentController from './contractDocuments-controller.js';
+import * as contractDocumentController from './contract-documents-controller.js';
 import { contractDocumentFileUpload } from '../../middlewares/upload-middleware.js';
-import { asyncHandler } from '../../middlewares/asyncHandler.js';
-import { validateId, validateGetQuery } from './contractDocuments-dto.js';
+import { asyncHandler } from '../../middlewares/async-handler.js';
+import { validateId, validateGetQuery } from './contract-documents-dto.js';
 
 const contractDocumentRouter = express.Router();
 
 // 계약서 업로드 시 계약 목록 조회
 contractDocumentRouter.get('/', validateGetQuery, asyncHandler(contractDocumentController.getContractDocuments));
 
-// 게약서 추가 시 계약 목록 조회
+// 계약서 추가 시 계약 목록 조회
 contractDocumentRouter.get('/draft', asyncHandler(contractDocumentController.getContracts));
 
 // 계약서 업로드

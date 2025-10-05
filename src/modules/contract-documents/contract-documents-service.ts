@@ -1,5 +1,5 @@
 import * as contractDocumentRepository from './contractDocuments-repository.js';
-import type { GetContractDocumentsQuery, UploadContractDocumentData } from './contractDocuments-dto.js';
+import type { GetContractDocumentsQuery, UploadContractDocumentData } from './contract-documents-dto.js';
 import type { Prisma } from '@prisma/client';
 
 // 계약서 업로드 시 계약 목록 조회
@@ -87,7 +87,7 @@ export const getContractDocuments = async (query: GetContractDocumentsQuery, use
   };
 };
 
-// 게약서 추가 시 계약 목록 조회
+// 계약서 추가 시 계약 목록 조회
 export const getContracts = async (userId: number) => {
   // 인가자(현재 사용자) 회사 확인
   const company = await contractDocumentRepository.findCompany(userId);

@@ -207,6 +207,7 @@ model ContractDocument {
   contractId Int?
   fileName   String   @db.VarChar(255)
   fileUrl    String   @db.VarChar(2083)
+  publicId   String   @db.VarChar(255)
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 

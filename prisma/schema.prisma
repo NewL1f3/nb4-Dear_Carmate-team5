@@ -87,6 +87,7 @@ model Company {
   users       User[]
   customers   Customer[]
   cars        Car[]
+  contracts   Contract[]
 }
 
 model User {
@@ -116,7 +117,7 @@ model Customer {
   phoneNumber   String        @db.VarChar(20)
   ageGroup      AgeGroupEnum?
   region        RegionEnum?
-  email         String?       @db.VarChar(255)
+  email         String        @db.VarChar(255)
   memo          String?       @db.Text
   contractCount Int           @default(0)
   createdAt     DateTime      @default(now())
@@ -174,19 +175,22 @@ model Car {
   @@unique([companyId, carNumber])
 }
 
+
 model Contract {
   id              Int                @id @default(autoincrement())
   userId          Int
   customerId      Int
   carId           Int
+  companyId       Int
   status          ContractStatusEnum
   resolutionDate  DateTime?          @db.Date
-  contractPrice   Int
+  contractPrice   Int?
   contractName    String
   documentsCount  Int                @default(0)
   createdAt       DateTime           @default(now())
   updatedAt       DateTime           @updatedAt
 
+  company         Company            @relation(fields: [companyId], references: [id])
   user            User               @relation(fields: [userId], references: [id])
   customer        Customer           @relation(fields: [customerId], references: [id], onDelete: Cascade)
   car             Car                @relation(fields: [carId], references: [id], onDelete: Cascade)

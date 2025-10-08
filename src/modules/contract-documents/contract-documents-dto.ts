@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { validateParams, validateQuery } from '../../middlewares/validate-middleware';
 import type { ValidatedRequest } from '../../middlewares/validate-middleware';
+import type { Request } from 'express';
 
 // ----------
 // |  TYPE  |
@@ -12,6 +13,7 @@ export interface GetContractDocumentsRequest extends ValidatedRequest {
     searchBy?: string;
     keyword?: string;
     page?: number;
+    pageSize?: number;
   };
 }
 
@@ -23,9 +25,18 @@ export interface GetContractDocumentsQuery {
 }
 
 // 계약서 업로드
+export interface UploadRequest extends Request {
+  cloudinaryResult?: {
+    secure_url: string;
+    public_id: string;
+    originalName: string;
+  };
+}
+
 export interface UploadContractDocumentData {
   fileName: string;
   fileUrl: string;
+  publicId: string;
 }
 
 // 계약서 다운로드
@@ -35,6 +46,11 @@ export interface DownloadContractDocumentRequest extends ValidatedRequest {
   };
 }
 
+export interface CloudinaryPrivateDownloadOptions {
+  resource_type?: 'image' | 'video' | 'raw';
+  type?: 'upload' | 'authenticated' | 'private';
+  attachment?: boolean | string;
+}
 // -----------------
 // |  ZOD SCHEMAS  |
 // -----------------

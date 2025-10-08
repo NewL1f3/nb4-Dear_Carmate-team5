@@ -6,9 +6,12 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "format": "prettier --write .",
-    "dev": "nodemon src/app.ts",
+    "dev": "ts-node src/app.ts",
     "start": "node dist/app.js",
     "build": "tsc"
+  },
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
   },
   "repository": {
     "type": "git",
@@ -22,7 +25,10 @@
   "homepage": "https://github.com/NewL1f3/nb4-Dear_Carmate-team5#readme",
   "dependencies": {
     "@prisma/client": "^6.16.2",
+    "axios": "^1.12.2",
     "bcrypt": "^6.0.0",
+    "busboy": "^1.6.0",
+    "cloudinary": "^2.7.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
@@ -34,10 +40,12 @@
     "zod": "^4.1.11"
   },
   "devDependencies": {
+    "@types/busboy": "^1.5.4",
     "@types/express": "^5.0.3",
     "@types/multer": "^2.0.0",
     "@types/node": "^24.6.2",
     "prettier": "^3.6.2",
+    "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
   }
 }

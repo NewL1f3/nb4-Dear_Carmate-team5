@@ -33,9 +33,9 @@ export const getContractDocuments = async (contractDocumentsQuery: Prisma.Contra
 };
 
 // 계약서 추가 시 계약 목록 조회
-export const getContracts = async (contracsQuery: Prisma.ContractFindManyArgs) => {
+export const getContracts = async (contractsQuery: Prisma.ContractFindManyArgs) => {
   const contracs = await prisma.contract.findMany({
-    ...contracsQuery,
+    ...contractsQuery,
     select: {
       id: true,
       contractName: true,
@@ -63,7 +63,7 @@ export const findContractDocument = async (id: number) => {
     where: { id },
     select: {
       fileName: true,
-      fileUrl: true,
+      publicId: true,
       contract: {
         select: {
           company: {

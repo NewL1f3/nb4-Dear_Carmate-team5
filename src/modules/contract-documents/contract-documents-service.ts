@@ -67,15 +67,15 @@ export const getContractDocuments = async (query: GetContractDocumentsQuery = {}
   const totalItemCount = await contractDocumentRepository.countContracts(where);
   const totalPages = Math.ceil(totalItemCount / take);
 
-  const contractDocument = await contractDocumentRepository.getContractDocuments(contractDocumentsQuery);
+  const contract = await contractDocumentRepository.getContractDocuments(contractDocumentsQuery);
 
   // 데이터 가공
-  const data = contractDocument.map((contract) => ({
+  const data = contract.map((contract) => ({
     id: contract.id,
     contractName: contract.contractName,
     resolutionDate: contract.resolutionDate,
-    documentsCount: contract.documentsCount,
-    manager: contract.user.name,
+    documentCount: contract.documentCount,
+    userName: contract.user.name,
     carNumber: contract.car.carNumber,
     documents: contract.contractDocuments,
   }));
@@ -155,15 +155,15 @@ export const downloadContractDocument = async (id: number, userId: number) => {
   const company = await contractDocumentRepository.findCompany(userId);
   if (!company) throw new Error('사용자 회사를 찾을 수 없습니다.');
 
-  // // 계약과 계약서의 연결 확인 (타입 가드)
-  // if (!contractDocument.contract) {
-  //   throw new Error('사용자 인가를 확인할 수 없습니다: 연결된 계약 정보가 없습니다.');
-  // }
+  // 계약과 계약서의 연결 확인 (타입 가드)
+  if (!contractDocument.contract) {
+    throw new Error('사용자 인가를 확인할 수 없습니다: 연결된 계약 정보가 없습니다.');
+  }
 
-  // // 인가 확인
-  // if (company.company.id !== contractDocument.contract.company.id) {
-  //   throw new Error('인가 실패');
-  // }
+  // 인가 확인
+  if (company.company.id !== contractDocument.contract.company.id) {
+    throw new Error('인가 실패');
+  }
 
   // Cloudinary ID 존재 확인
   if (!contractDocument.publicId) {

@@ -51,6 +51,7 @@ export interface CloudinaryPrivateDownloadOptions {
   type?: 'upload' | 'authenticated' | 'private';
   attachment?: boolean | string;
 }
+
 // -----------------
 // |  ZOD SCHEMAS  |
 // -----------------
@@ -58,7 +59,7 @@ export interface CloudinaryPrivateDownloadOptions {
 // query
 const getContractDocumentsSchema = z
   .object({
-    searchBy: z.string().max(100).optional(), //userName, contractName, carNumber, pageSize=8
+    searchBy: z.string().max(100).optional(),
     keyword: z.string().max(100).optional(),
     page: z.coerce.number().min(1).max(100).default(1),
     pageSize: z.coerce.number().min(8).max(8).default(8),

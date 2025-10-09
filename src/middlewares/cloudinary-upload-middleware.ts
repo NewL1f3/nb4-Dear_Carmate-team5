@@ -32,6 +32,7 @@ export const cloudinaryStreamUploader = (req: UploadRequest, res: Response, next
           message: '업로드할 수 없는 파일 형식입니다. PDF만 가능합니다.',
         });
       });
+
       return;
     }
 

@@ -3,13 +3,13 @@ import type { Prisma } from '@prisma/client';
 
 // 계약서 업로드 시 계약 목록 조회
 export const getContractDocuments = async (contractDocumentsQuery: Prisma.ContractFindManyArgs) => {
-  const contractDocuments = await prisma.contract.findMany({
+  const contract = await prisma.contract.findMany({
     ...contractDocumentsQuery,
     select: {
       id: true,
       contractName: true,
       resolutionDate: true,
-      documentsCount: true,
+      documentCount: true,
       user: {
         select: {
           name: true,
@@ -29,12 +29,12 @@ export const getContractDocuments = async (contractDocumentsQuery: Prisma.Contra
     },
   });
 
-  return contractDocuments;
+  return contract;
 };
 
 // 계약서 추가 시 계약 목록 조회
 export const getContracts = async (contractsQuery: Prisma.ContractFindManyArgs) => {
-  const contracs = await prisma.contract.findMany({
+  const contract = await prisma.contract.findMany({
     ...contractsQuery,
     select: {
       id: true,
@@ -42,7 +42,7 @@ export const getContracts = async (contractsQuery: Prisma.ContractFindManyArgs) 
     },
   });
 
-  return contracs;
+  return contract;
 };
 
 // 계약서 업로드

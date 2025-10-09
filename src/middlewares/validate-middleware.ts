@@ -27,7 +27,7 @@ export const validateParams = <TParams extends ZodObject<ZodRawShape>>(schema: T
 export const validateQuery = <TQuery extends ZodObject<ZodRawShape>>(schema: TQuery) => {
   return async (req: ValidatedRequest, _res: Response, next: NextFunction) => {
     try {
-      const { success, data, error } = schema.parse(req.query);
+      const { success, data, error } = schema.safeParse(req.query);
       if (!success) {
         return next(error);
       }
@@ -41,17 +41,19 @@ export const validateQuery = <TQuery extends ZodObject<ZodRawShape>>(schema: TQu
   };
 };
 
-// // Params만 사용할 경우
-// export type ValidatedParams<P> = ValidatedRequest<P, unknown, unknown>;
-// // Body만 사용할 경우
-// export type ValidatedBody<B> = ValidatedRequest<unknown, B, unknown>;
-// // Query만 사용할 경우
-// export type ValidatedQuery<Q> = ValidatedRequest<unknown, unknown, Q>;
-// // Params와 Body를 사용할 경우
-// export type ValidatedParamsAndBody<P, B> = ValidatedRequest<P, B, unknown>;
+export const validateBody = <TBody extends ZodObject<ZodRawShape>>(schema: TBody) => {
+  return async (req: ValidatedRequest, _res: Response, next: NextFunction) => {
+    try {
+      const { success, data, error } = schema.safeParse(req.body);
+      if (!success) {
+        return next(error);
+      }
 
-// export interface ValidatedRequest<P = unknown, B = unknown, Q = unknown> extends Request {
-//   parsedParams?: P;
-//   parsedBody?: B;
-//   parsedQuery?: Q;
-// }
+      req.parsedBody = data;
+
+      next();
+    } catch (err) {
+      next(err);
+    }
+  };
+};

@@ -111,7 +111,7 @@ model Customer {
   phoneNumber   String        @db.VarChar(20)
   ageGroup      AgeGroupEnum?
   region        RegionEnum?
-  email         String?       @db.VarChar(255)
+  email         String        @db.VarChar(255)
   memo          String?       @db.Text
   contractCount Int           @default(0)
   createdAt     DateTime      @default(now())
@@ -177,7 +177,7 @@ model Contract {
   carId          Int
   status         ContractStatusEnum
   resolutionDate DateTime?          @db.Date
-  contractPrice  Int
+  contractPrice  Int?
   contractName   String
   documentCount  Int                @default(0)
   createdAt      DateTime           @default(now())

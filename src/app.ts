@@ -5,6 +5,7 @@ import { contractDocumentRouter } from './modules/contract-documents/contract-do
 import { userRouter } from './modules/users/users-route.js'; // 임시
 import { v2 as cloudinary } from 'cloudinary';
 import cors from 'cors';
+import { startCleanupJob } from './lib/cron-jobs.js';
 
 dotenv.config();
 
@@ -31,5 +32,8 @@ app.use('/uploads', express.static('uploads'));
 app.use('/users', userRouter); // 임시
 app.use('/contracts', contractRouter); // 임시
 app.use('/contractDocuments', contractDocumentRouter);
+
+// Cron Job 활성화
+startCleanupJob;
 
 app.listen(process.env.PORT || 3001, () => console.log('서버 시작'));

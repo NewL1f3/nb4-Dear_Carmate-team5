@@ -87,6 +87,7 @@ export const downloadContractDocument = async (req: DownloadContractDocumentRequ
 const deleteFileFromCloudinary = async (publicId: string) => {
   try {
     await cloudinary.uploader.destroy(publicId, {
+      type: 'authenticated',
       resource_type: 'raw',
     });
     console.log(`롤백 성공: Cloudinary 파일 삭제 완료 - Public ID: ${publicId}`);

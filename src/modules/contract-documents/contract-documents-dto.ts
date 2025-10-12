@@ -9,12 +9,7 @@ import type { Request } from 'express';
 
 // 계약서 업로드 시 계약 목록 조회
 export interface GetContractDocumentsRequest extends ValidatedRequest {
-  parsedQuery: {
-    searchBy?: string;
-    keyword?: string;
-    page?: number;
-    pageSize?: number;
-  };
+  parsedQuery: GetContractDocumentsQuery;
 }
 
 export interface GetContractDocumentsQuery {
@@ -25,7 +20,7 @@ export interface GetContractDocumentsQuery {
 }
 
 // 계약서 업로드
-export interface UploadRequest extends Request {
+export interface UploadContractDocumentRequest extends Request {
   cloudinaryResult?: {
     secure_url: string;
     public_id: string;
@@ -46,11 +41,11 @@ export interface DownloadContractDocumentRequest extends ValidatedRequest {
   };
 }
 
-export interface CloudinaryPrivateDownloadOptions {
-  resource_type?: 'image' | 'video' | 'raw';
-  type?: 'upload' | 'authenticated' | 'private';
-  attachment?: boolean | string;
-}
+// export interface CloudinaryPrivateDownloadOptions {
+//   resource_type?: 'image' | 'video' | 'raw';
+//   type?: 'upload' | 'authenticated' | 'private';
+//   attachment?: boolean | string;
+// }
 
 // -----------------
 // |  ZOD SCHEMAS  |

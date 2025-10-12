@@ -1,8 +1,8 @@
 import express from 'express';
 import dotenv from 'dotenv';
-import { contractRouter } from './modules/contracts/contracts-route.js'; // 임시
+// import { contractRouter } from './modules/contracts/contracts-route.js'; // 임시
 import { contractDocumentRouter } from './modules/contract-documents/contract-documents-route.js';
-import { userRouter } from './modules/users/users-route.js'; // 임시
+// import { userRouter } from './modules/users/users-route.js'; // 임시
 import { v2 as cloudinary } from 'cloudinary';
 import cors from 'cors';
 import { startCleanupJob } from './lib/cron-jobs.js';
@@ -29,11 +29,11 @@ cloudinary.config({
 });
 
 app.use('/uploads', express.static('uploads'));
-app.use('/users', userRouter); // 임시
-app.use('/contracts', contractRouter); // 임시
+// app.use('/users', userRouter); // 임시
+// app.use('/contracts', contractRouter); // 임시
 app.use('/contractDocuments', contractDocumentRouter);
 
 // Cron Job 활성화
-startCleanupJob;
+startCleanupJob();
 
 app.listen(process.env.PORT || 3001, () => console.log('서버 시작'));

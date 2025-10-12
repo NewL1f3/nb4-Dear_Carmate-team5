@@ -2,7 +2,7 @@ import * as contractDocumentService from './contract-documents-service.js';
 import type { Request, Response } from 'express';
 import type {
   GetContractDocumentsRequest,
-  UploadRequest,
+  UploadContractDocumentRequest,
   DownloadContractDocumentRequest,
 } from './contract-documents-dto.js';
 import { v2 as cloudinary } from 'cloudinary';
@@ -29,7 +29,7 @@ export const getContracts = async (req: Request, res: Response) => {
 };
 
 // 계약서 업로드
-export const uploadContractDocument = async (req: UploadRequest, res: Response) => {
+export const uploadContractDocument = async (req: UploadContractDocumentRequest, res: Response) => {
   if (!req.cloudinaryResult) {
     throw new Error('파일 업로드 정보가 필요합니다.');
   }

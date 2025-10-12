@@ -10,9 +10,6 @@
     "start": "node dist/app.js",
     "build": "tsc"
   },
-  "prisma": {
-    "seed": "ts-node prisma/seed.ts"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/NewL1f3/nb4-Dear_Carmate-team5.git"

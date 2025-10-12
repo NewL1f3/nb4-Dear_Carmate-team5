@@ -2,7 +2,7 @@ import express from 'express';
 import * as contractDocumentController from './contract-documents-controller.js';
 import { asyncHandler } from '../../middlewares/async-handler.js';
 import { validateId, validateGetQuery } from './contract-documents-dto.js';
-import { cloudinaryStreamUploader } from '../../middlewares/cloudinary-upload-middleware.js';
+import { contractDocumentUpload } from '../../middlewares/cloudinary-upload-middleware.js';
 import { mockAuthMiddleware } from '../../middlewares/mock-auth-middleware.js';
 
 const contractDocumentRouter = express.Router();
@@ -19,7 +19,7 @@ contractDocumentRouter.get('/draft', asyncHandler(contractDocumentController.get
 // 계약서 업로드
 contractDocumentRouter.post(
   '/upload',
-  cloudinaryStreamUploader,
+  contractDocumentUpload,
   asyncHandler(contractDocumentController.uploadContractDocument),
 );
 

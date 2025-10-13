@@ -478,10 +478,3 @@ function ageKorToEng(Kor: string | null) {
   }
   return result;
 }
-
-function genderKorToEng(Kor: string) {
-  let result = null;
-  if (Kor == 'male') {
-    result = '남성';
-  }
-}

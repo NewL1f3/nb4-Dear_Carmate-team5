@@ -19,16 +19,42 @@ export const contractRepository = {
       },
     }),
 
-  findContractsByCompany: (companyId: number) =>
-    prisma.contract.findMany({
-      where: { companyId },
+  findContracts: (companyId: number, search?: string) => {
+    return prisma.contract.findMany({
+      where: {
+        companyId,
+        ...(search
+          ? {
+              OR: [
+                {
+                  customer: {
+                    name: {
+                      contains: search,
+                      mode: "insensitive",
+                    },
+                  },
+                },
+                {
+                  user: {
+                    name: {
+                      contains: search,
+                      mode: "insensitive",
+                    },
+                  },
+                },
+              ],
+            }
+          : {}),
+      },
       include: {
-        car: { include: { model: true } },
-        customer: true,
         user: true,
+        customer: true,
+        car: { include: { model: true } },
         meetings: true,
       },
-    }),
+      orderBy: { id: "desc" },
+    });
+  },
 
   findContractById: (id: number) =>
     prisma.contract.findUnique({

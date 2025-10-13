@@ -18,7 +18,8 @@ export const contractController = {
   if (!req.user) return res.status(401).json({ message: "Unauthorized" });
 
   try {
-    const contracts = await contractService.getContracts(req.user.companyId);
+    const { search } = req.query;
+    const contracts = await contractService.getContracts(req.user.companyId, search as string);
     res.status(200).json(contracts);
   } catch (err: any) {
     console.error(err);

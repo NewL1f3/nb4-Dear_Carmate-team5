@@ -89,8 +89,8 @@ export const contractService = {
     };
   },
 
-    async getContracts(companyId: number) {
-    const contracts = await contractRepository.findContractsByCompany(companyId);
+    async getContracts(companyId: number, search?: string) {
+    const contracts = await contractRepository.findContracts(companyId, search);
 
     return contracts.reduce<Record<string, { totalItemCount: number; data: ContractResponse[] }>>((acc, c) => {
       if (!acc[c.status]) acc[c.status] = { totalItemCount: 0, data: [] };

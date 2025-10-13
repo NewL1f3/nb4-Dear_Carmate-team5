@@ -66,8 +66,8 @@ exports.contractService = {
             car: { id: contract.car.id, model: contract.car.model.modelName },
         };
     },
-    async getContracts(companyId) {
-        const contracts = await contract_repository_1.contractRepository.findContractsByCompany(companyId);
+    async getContracts(companyId, search) {
+        const contracts = await contract_repository_1.contractRepository.findContracts(companyId, search);
         return contracts.reduce((acc, c) => {
             if (!acc[c.status])
                 acc[c.status] = { totalItemCount: 0, data: [] };

@@ -9,3 +9,6 @@ node_modules
 =======
 prisma/migrations
 >>>>>>> cc4dd27 ([feat]: customer 뼈대 설계 및 post,목록조회 기능 테스트 완료)
+
+
+/dist

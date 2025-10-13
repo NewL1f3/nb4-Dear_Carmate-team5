@@ -3,6 +3,9 @@ import { AgeGroupEnum, GenderEnum, RegionEnum } from '@prisma/client';
 import { unauthorizedError, serverError, databaseCheckError, noCustomerError, badRequestError } from '../lib/errors';
 import { customerBodySchema, customerIdSchema, getManyCustomerSchema } from '../lib/zod';
 import { Request, Response, NextFunction } from 'express';
+import Busboy from 'busboy';
+import csv from 'csv-parser';
+import { Readable } from 'stream';
 //controller
 
 enum regionEnumEng {
@@ -335,12 +338,34 @@ export class customerController {
   };
 
   uploadCustomer = async function (req: Request, res: Response, next: NextFunction) {
-    /*
-      1. multer를 통하여 file을 받아온다
-      2. 저장된 csv파일을 js에서 처리하기 쉬운 형식으로 바꾼다.
-      3. prisma 데이터 셋으로 치환한다(createMany 또는 create). 
-      4. 
-    */
+    const busboy = Busboy({ headers: req.headers });
+
+    busboy.on('file', (fieldname: string, file: Readable, filename: string, encoding: string, mimetype: string) => {
+      if (mimetype !== 'text/csv') {
+        res.status(400).json({ error: 'CSV 파일만 업로드할 수 있습니다.' });
+        return;
+      }
+
+      const csvRows = [];
+      file
+        .pipe(csv())
+        .on('data', (row) => {
+          console.log('CSV 행:', row);
+          csvRows.push(row);
+        })
+        .on('end', async () => {
+          console.log('CSV 파싱 완료, 행 개수:', csvRows.length);
+
+          try {
+            // await prisma.customer.createMany({ data: csvRows });
+            res.send();
+          } catch (err) {
+            throw new Error();
+          }
+        });
+    });
+
+    req.pipe(busboy);
   };
 }
 
@@ -452,4 +477,11 @@ function ageKorToEng(Kor: string | null) {
     result = ageMap[Kor];
   }
   return result;
+}
+
+function genderKorToEng(Kor: string) {
+  let result = null;
+  if (Kor == 'male') {
+    result = '남성';
+  }
 }

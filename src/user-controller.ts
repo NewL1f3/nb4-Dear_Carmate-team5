@@ -1,6 +1,5 @@
 import express, { Request, Response } from 'express';
 import * as bcrypt from 'bcrypt';
-
 import { PrismaClient } from '@prisma/client';
 export const prisma = new PrismaClient();
 
@@ -101,10 +100,3 @@ export default userController;
 
 
 
-
-
-
-
-
-//로그인
-userController.post('/auth/login', async (req: Request, res: Response) => {

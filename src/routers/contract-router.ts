@@ -1,14 +1,19 @@
-import { Router } from "express";
+import express from 'express';
 import { contractController } from "../controllers/contract-controller";
+import { mockAuthMiddleware } from '../middlewares/mock-auth-middleware';
 
-const router = Router();
+export const contractRouter = express.Router();
 
-router.post("/", contractController.create);
-router.get("/", contractController.get);
-router.put("/:id", contractController.update);
-router.delete("/:id", contractController.delete);
-router.get("/cars", contractController.getCarInfo);
-router.get("/customers", contractController.getCustomerInfo);
-router.get("/users", contractController.getUserInfo);
+// 모든 contract 라우트에 mockAuthMiddleware 적용
+contractRouter.use(mockAuthMiddleware);
 
-export default router;
+// Contract CRUD
+contractRouter.post('/', contractController.create);
+contractRouter.get('/', contractController.get);
+contractRouter.put('/:id', contractController.update);
+contractRouter.delete('/:id', contractController.delete);
+
+// 추가 정보 조회
+contractRouter.get('/cars', contractController.getCarInfo);
+contractRouter.get('/customers', contractController.getCustomerInfo);
+contractRouter.get('/users', contractController.getUserInfo);

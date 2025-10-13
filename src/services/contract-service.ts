@@ -1,22 +1,42 @@
+import { z } from 'zod';
 import { contractRepository } from '../repositories/contract-repository';
-import { Contract, User, Meeting, ContractDocument, Prisma } from '@prisma/client';
+import { Prisma, ContractStatusEnum, Contract, Meeting, User } from '@prisma/client';
 
-export interface CreateContractBody {
-  carId: number;
-  customerId: number;
-  date: Date;
-  alarms: string[];
-}
+const createContractSchema = z.object({
+  carId: z.number().int().positive(),
+  customerId: z.number().int().positive(),
+  date: z.coerce.date(),
+  alarms: z.array(z.string()).nonempty('알람은 최소 1개 이상이어야 합니다.'),
+});
 
-export interface UpdateContractBody {
-  status?: Contract['status'];
-  resolutionDate?: Date | null;
-  contractPrice?: number;
-  userId?: number;
-  customerId?: number;
-  carId?: number;
-  meeting?: Pick<Meeting, 'date' | 'alarms'>[];
-  contractDocuments?: Pick<ContractDocument, 'fileName' | 'fileUrl'>[];
+const updateContractSchema = z.object({
+  status: z.nativeEnum(ContractStatusEnum).optional(),
+  resolutionDate: z.date().nullable().optional(),
+  contractPrice: z.number().int().nonnegative().optional(),
+  userId: z.number().int().optional(),
+  customerId: z.number().int().optional(),
+  carId: z.number().int().optional(),
+  meeting: z
+    .array(
+      z.object({
+        date: z.coerce.date(),
+        alarms: z.array(z.string()),
+      }),
+    )
+    .optional(),
+  contractDocuments: z
+    .array(
+      z.object({
+        fileName: z.string().min(1),
+        fileUrl: z.string().url(),
+      }),
+    )
+    .optional(),
+});
+
+export interface AuthenticatedUser {
+  id: number;
+  companyId: number;
 }
 
 export interface ContractResponse {
@@ -31,8 +51,12 @@ export interface ContractResponse {
 }
 
 export const contractService = {
-  async createContract(user: Express.User, body: CreateContractBody): Promise<ContractResponse> {
-    const { carId, customerId, date, alarms } = body;
+  async createContract(user: Express.User, body: unknown) {
+    const parsed = createContractSchema.safeParse(body);
+    if (!parsed.success) {
+      throw new Error(parsed.error.issues.map((e) => e.message).join(', '));
+    }
+    const { carId, customerId, date, alarms } = parsed.data;
 
     const car = await contractRepository.findCarById(carId);
     if (!car) throw new Error('Car not found');
@@ -65,7 +89,7 @@ export const contractService = {
     };
   },
 
-  async getContracts(companyId: number) {
+    async getContracts(companyId: number) {
     const contracts = await contractRepository.findContractsByCompany(companyId);
 
     return contracts.reduce<Record<string, { totalItemCount: number; data: ContractResponse[] }>>((acc, c) => {
@@ -85,31 +109,38 @@ export const contractService = {
     }, {});
   },
 
-  async updateContract(contractId: number, data: UpdateContractBody): Promise<ContractResponse> {
+  async updateContract(contractId: number, data: unknown) {
+    const parsed = updateContractSchema.safeParse(data);
+    if (!parsed.success) {
+      throw new Error(parsed.error.issues.map((e) => e.message).join(', '));
+    }
+
+    const validated = parsed.data;
+
     const existing = await contractRepository.findContractById(contractId);
     if (!existing) throw new Error('Contract not found');
 
-    if (data.contractDocuments && data.status !== 'contractSuccessful') {
+    if (validated.contractDocuments && validated.status !== 'contractSuccessful') {
       throw new Error('Cannot upload documents before contract is successful');
     }
 
     const updateData: Prisma.ContractUpdateInput = {
-      status: data.status,
-      resolutionDate: data.resolutionDate ?? null,
-      contractPrice: data.contractPrice ?? null,
-      user: data.userId ? { connect: { id: data.userId } } : undefined,
-      customer: data.customerId ? { connect: { id: data.customerId } } : undefined,
-      car: data.carId ? { connect: { id: data.carId } } : undefined,
-      meetings: data.meeting
+      status: validated.status,
+      resolutionDate: validated.resolutionDate ?? null,
+      contractPrice: validated.contractPrice ?? null,
+      user: validated.userId ? { connect: { id: validated.userId } } : undefined,
+      customer: validated.customerId ? { connect: { id: validated.customerId } } : undefined,
+      car: validated.carId ? { connect: { id: validated.carId } } : undefined,
+      meetings: validated.meeting
         ? {
             deleteMany: { contractId },
-            create: data.meeting.map((m) => ({ date: m.date, alarms: m.alarms })),
+            create: validated.meeting.map((m) => ({ date: m.date, alarms: m.alarms })),
           }
         : undefined,
-      contractDocuments: data.contractDocuments
+      contractDocuments: validated.contractDocuments
         ? {
             deleteMany: { contractId },
-            create: data.contractDocuments.map((doc) => ({
+            create: validated.contractDocuments.map((doc) => ({
               contractId,
               fileName: doc.fileName,
               fileUrl: doc.fileUrl,

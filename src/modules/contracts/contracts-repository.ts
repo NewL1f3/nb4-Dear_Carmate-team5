@@ -1,12 +1,10 @@
-import { Prisma } from "@prisma/client";
-import prisma from "../../lib/prisma";
+import prisma from '../../lib/prisma';
+import type { Prisma } from '@prisma/client';
 
 export const contractRepository = {
-  findCarById: (id: number) =>
-    prisma.car.findUnique({ where: { id }, include: { model: true } }),
+  findCarById: (id: number) => prisma.car.findUnique({ where: { id }, include: { model: true } }),
 
-  findCustomerById: (id: number) =>
-    prisma.customer.findUnique({ where: { id } }),
+  findCustomerById: (id: number) => prisma.customer.findUnique({ where: { id } }),
 
   createContract: (data: Prisma.ContractCreateInput) =>
     prisma.contract.create({
@@ -30,7 +28,7 @@ export const contractRepository = {
                   customer: {
                     name: {
                       contains: search,
-                      mode: "insensitive",
+                      mode: 'insensitive',
                     },
                   },
                 },
@@ -38,7 +36,7 @@ export const contractRepository = {
                   user: {
                     name: {
                       contains: search,
-                      mode: "insensitive",
+                      mode: 'insensitive',
                     },
                   },
                 },
@@ -52,7 +50,7 @@ export const contractRepository = {
         car: { include: { model: true } },
         meetings: true,
       },
-      orderBy: { id: "desc" },
+      orderBy: { id: 'desc' },
     });
   },
 

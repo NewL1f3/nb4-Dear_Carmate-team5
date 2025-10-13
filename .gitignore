@@ -4,6 +4,8 @@ node_modules
 
 /generated/prisma
 
-prisma/migrations
+/prisma/migrations
 
 /dist
+
+/src/customer

@@ -6,14 +6,6 @@ export interface customerRouter {
 
 export interface user {}
 
-export interface user {}
-
-export interface user {}
-
-export interface user {}
-
-export interface user {}
-
 export interface User {
   id: number;
   companyId: number;

@@ -1,22 +1,14 @@
 {
-  "name": "nb4-dear_carmate-team5",
+  "name": "nb04-dearcarmate-team5",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "main": "main.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "format": "prettier --write ."
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/NewL1f3/nb4-Dear_Carmate-team5.git"
-  },
+  "keywords": [],
   "author": "",
   "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/NewL1f3/nb4-Dear_Carmate-team5/issues"
-  },
-  "homepage": "https://github.com/NewL1f3/nb4-Dear_Carmate-team5#readme",
+  "description": "",
   "dependencies": {
     "@prisma/client": "^6.16.2",
     "bcrypt": "^6.0.0",
@@ -24,10 +16,10 @@
     "cors": "^2.8.5",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
-    "multer": "^2.0.2",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "passport-local": "^1.0.0",
+    "prisma": "^6.16.2",
     "zod": "^4.1.11"
   },
   "devDependencies": {

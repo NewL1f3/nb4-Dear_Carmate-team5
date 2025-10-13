@@ -13,7 +13,7 @@ exports.contractRouter.use(mock_auth_middleware_1.mockAuthMiddleware);
 // Contract CRUD
 exports.contractRouter.post('/', contract_controller_1.contractController.create);
 exports.contractRouter.get('/', contract_controller_1.contractController.get);
-exports.contractRouter.put('/:id', contract_controller_1.contractController.update);
+exports.contractRouter.patch('/:id', contract_controller_1.contractController.update);
 exports.contractRouter.delete('/:id', contract_controller_1.contractController.delete);
 // 추가 정보 조회
 exports.contractRouter.get('/cars', contract_controller_1.contractController.getCarInfo);

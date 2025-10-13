@@ -10,7 +10,7 @@ contractRouter.use(mockAuthMiddleware);
 // Contract CRUD
 contractRouter.post('/', contractController.create);
 contractRouter.get('/', contractController.get);
-contractRouter.put('/:id', contractController.update);
+contractRouter.patch('/:id', contractController.update);
 contractRouter.delete('/:id', contractController.delete);
 
 // 추가 정보 조회

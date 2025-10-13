@@ -100,9 +100,59 @@ authController.post('/refresh', async (req: Request, res: Response) => {
 
     //1. 요청 검증
     if (!refreshToken) {
-      return res.status(400).json({message: "re"})
+      return res.status(400).json({message: "refreshToken이 필요합니다"});
     }
+    //2. refresh 검증
+    let decoded: any;
+    try {
+      decoded = jwt.verify(
+        refreshToken,
+        process.env.JWT_REFRESH_SECRET || "refreshsecret"
+      );
+    } catch (err) {
+      return res.status(403).json({ message: "유효하지 않은 refreshToken입니다." });
+    }
+
+    // 3. 토큰에서 사용자 정보 추출
+    const userId = decoded.userId;
+    if (!userId) {
+      return res.status(403).json({ message: "잘못된 토큰 형식입니다." });
+    }
+
+    // 4. 사용자 확인
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+    });
+
+    if (!user) {
+      return res.status(404).json({ message: "사용자를 찾을 수 없습니다." });
+    }
+
+    // 5. 새 토큰 발급
+    const newAccessToken = jwt.sign(
+      { userId: user.id, email: user.email },
+      process.env.JWT_SECRET || "secretkey",
+      { expiresIn: "1h" }
+    );
+
+    const newRefreshToken = jwt.sign(
+      { userId: user.id },
+      process.env.JWT_REFRESH_SECRET || "refreshsecret",
+      { expiresIn: "7d" }
+    );
+
+    // 6. 응답 반환
+    return res.status(200).json({
+      accessToken: newAccessToken,
+      refreshToken: newRefreshToken,
+    });
+  } catch (err) {
+    console.error(" refresh error:", err);
+    return res.status(500).json({ message: "서버 오류" });
   }
+});
+
+
 
 
 

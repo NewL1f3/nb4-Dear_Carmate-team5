@@ -1,7 +1,7 @@
 import * as contractDocumentRepository from './contract-documents-repository.js';
 import type { GetContractDocumentsQuery, UploadContractDocumentData } from './contract-documents-dto.js';
 import type { Prisma } from '@prisma/client';
-import { v2 as cloudinary } from 'cloudinary';
+import { createDownloadUrl } from '../../lib/cloudinary-service.js';
 
 // 계약서 업로드 시 계약 목록 조회
 export const getContractDocuments = async (query: GetContractDocumentsQuery = {}, userId: number) => {
@@ -172,18 +172,8 @@ export const downloadContractDocument = async (id: number, userId: number) => {
 
   const { publicId, fileName } = contractDocument;
 
-  // Cloudinary 키 만료 시간 30분
-  const expiresAt = Math.floor(Date.now() / 1000) + 60 * 30;
   // Cloudinary URL 생성
-  const downloadUrl = cloudinary.url(publicId, {
-    resource_type: 'raw',
-    folder: 'contractdocuments',
-    type: 'authenticated',
-    flags: 'attachment',
-    sign_url: true,
-    expires_at: expiresAt,
-    secure: true,
-  });
+  const downloadUrl = createDownloadUrl(publicId);
 
   // 데이터
   const contractDocumentData = {

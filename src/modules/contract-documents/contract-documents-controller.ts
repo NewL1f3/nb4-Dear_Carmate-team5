@@ -5,8 +5,8 @@ import type {
   UploadContractDocumentRequest,
   DownloadContractDocumentRequest,
 } from './contract-documents-dto.js';
-import { v2 as cloudinary } from 'cloudinary';
 import axios from 'axios';
+import { deleteFileFromCloudinary } from '../../lib/cloudinary-service.js';
 
 // 계약서 업로드 시 계약 목록 조회
 export const getContractDocuments = async (req: GetContractDocumentsRequest, res: Response) => {
@@ -80,18 +80,5 @@ export const downloadContractDocument = async (req: DownloadContractDocumentRequ
   } catch (urlError) {
     console.error('Cloudinary URL 생성 오류:', urlError);
     return res.status(500).json({ message: '다운로드 링크를 생성하는 데 실패했습니다.' });
-  }
-};
-
-// Cloudinary 롤백 함수
-const deleteFileFromCloudinary = async (publicId: string) => {
-  try {
-    await cloudinary.uploader.destroy(publicId, {
-      type: 'authenticated',
-      resource_type: 'raw',
-    });
-    console.log(`롤백 성공: Cloudinary 파일 삭제 완료 - Public ID: ${publicId}`);
-  } catch (err) {
-    console.error(`롤백 실패: Cloudinary 파일 삭제 실패 - Public ID: ${publicId}`, err);
   }
 };

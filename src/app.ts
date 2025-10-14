@@ -42,7 +42,6 @@ app.use((err: Error, req: Request, res: Response, next: NextFunction) => {
         return res.status(404).json({ message: err.message });
     }
 
-    // 인증 에러
     if (err.message.includes('인증') || err.message.includes('권한')) {
         return res.status(401).json({ message: err.message });
     }

@@ -102,7 +102,6 @@ export class CarController {
         }
     };
 
-    // ✅ 올바른 uploadCars 메서드 (제조사/모델명으로 modelId 찾기)
     public uploadCars = async (req: Request, res: Response, next: NextFunction) => {
         try {
             if (!req.file) {

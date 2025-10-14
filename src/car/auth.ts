@@ -1,4 +1,4 @@
-// src/middlewares/auth.ts
+// src/car/auth.ts
 import passport from 'passport';
 import { Strategy as JwtStrategy, ExtractJwt, StrategyOptions } from 'passport-jwt';
 import { PrismaClient } from '@prisma/client';

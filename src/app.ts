@@ -1,7 +1,7 @@
 import express, { Request, Response } from "express";
 import dotenv from "dotenv";
-import userController from "./user-controller"
-import authController from "./auth-controller"
+import userRouter from "./modules/user/user-router";
+import authRouter from "./modules/auth/auth-router";
 
 dotenv.config();
 
@@ -14,8 +14,8 @@ app.get('/', (req: Request, res: Response) =>{
     res.send("hello world");
 });
 
-app.use("/users", userController);
-app.use("/auth", authController);
+app.use("/users", userRouter);
+app.use("/auth", authRouter);
 
 app.listen(port, () =>{
 console.log(`servser is running on port ${port}`);

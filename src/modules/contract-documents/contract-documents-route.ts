@@ -1,9 +1,9 @@
 import express from 'express';
-import * as contractDocumentController from './contract-documents-controller.js';
-import { asyncHandler } from '../../middlewares/async-handler.js';
-import { validateId, validateGetQuery } from './contract-documents-dto.js';
-import { contractDocumentUpload } from '../../middlewares/cloudinary-upload-middleware.js';
-import { mockAuthMiddleware } from '../../middlewares/mock-auth-middleware.js';
+import * as contractDocumentController from './contract-documents-controller';
+import { asyncHandler } from '../../middlewares/async-handler';
+import { validateId, validateGetQuery } from './contract-documents-dto';
+import { contractDocumentUpload } from '../../middlewares/cloudinary-upload-middleware';
+import { mockAuthMiddleware } from '../../middlewares/mock-auth-middleware';
 
 const contractDocumentRouter = express.Router();
 

@@ -1,4 +1,4 @@
-import prisma from '../../lib/prisma.js';
+import prisma from '../../lib/prisma';
 import type { Prisma } from '@prisma/client';
 
 // 계약서 업로드 시 계약 목록 조회

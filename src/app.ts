@@ -1,11 +1,11 @@
 import express from 'express';
 import dotenv from 'dotenv';
-import { contractRouter } from './modules/contracts/contracts-route.js'; // 임시
-import { contractDocumentRouter } from './modules/contract-documents/contract-documents-route.js';
-import { userRouter } from './modules/users/users-route.js'; // 임시
+// import { contractRouter } from './modules/contracts/contracts-route'; // 임시
+// import { userRouter } from './modules/users/users-route'; // 임시
+import { contractDocumentRouter } from './modules/contract-documents/contract-documents-route';
 import { v2 as cloudinary } from 'cloudinary';
 import cors from 'cors';
-import { startCleanupJob } from './lib/cron-jobs.js';
+import { startCleanupJob } from './lib/cron-jobs';
 
 dotenv.config();
 
@@ -29,8 +29,8 @@ cloudinary.config({
 });
 
 app.use('/uploads', express.static('uploads'));
-app.use('/users', userRouter); // 임시
-app.use('/contracts', contractRouter); // 임시
+// app.use('/users', userRouter); // 임시
+// app.use('/contracts', contractRouter); // 임시
 app.use('/contractDocuments', contractDocumentRouter);
 
 // Cron Job 활성화

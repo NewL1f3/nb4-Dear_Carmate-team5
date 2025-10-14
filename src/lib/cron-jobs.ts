@@ -1,6 +1,6 @@
 import cron from 'node-cron';
 import { v2 as cloudinary } from 'cloudinary';
-import prisma from './prisma.js';
+import prisma from './prisma';
 
 // 미연결된 계약서를 DB와 Cloudinary에서 삭제
 const findAndDeleteOrphanDocuments = async () => {

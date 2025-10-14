@@ -1,7 +1,7 @@
-import * as contractDocumentRepository from './contract-documents-repository.js';
-import type { GetContractDocumentsQuery, UploadContractDocumentData } from './contract-documents-dto.js';
+import * as contractDocumentRepository from './contract-documents-repository';
+import type { GetContractDocumentsQuery, UploadContractDocumentData } from './contract-documents-dto';
 import type { Prisma } from '@prisma/client';
-import { createDownloadUrl } from '../../lib/cloudinary-service.js';
+import { createDownloadUrl } from '../../lib/cloudinary-service';
 
 // 계약서 업로드 시 계약 목록 조회
 export const getContractDocuments = async (query: GetContractDocumentsQuery = {}, userId: number) => {

@@ -1,12 +1,12 @@
-import * as contractDocumentService from './contract-documents-service.js';
+import * as contractDocumentService from './contract-documents-service';
 import type { Request, Response } from 'express';
 import type {
   GetContractDocumentsRequest,
   UploadContractDocumentRequest,
   DownloadContractDocumentRequest,
-} from './contract-documents-dto.js';
+} from './contract-documents-dto';
 import axios from 'axios';
-import { deleteFileFromCloudinary } from '../../lib/cloudinary-service.js';
+import { deleteFileFromCloudinary } from '../../lib/cloudinary-service';
 
 // 계약서 업로드 시 계약 목록 조회
 export const getContractDocuments = async (req: GetContractDocumentsRequest, res: Response) => {

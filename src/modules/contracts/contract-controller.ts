@@ -88,18 +88,4 @@ export const contractController = {
       res.status(500).json({ message: err.message || 'Internal Server Error' });
     }
   },
-  async getCarById(req: Request, res: Response) {
-    try {
-      const carId = Number(req.params.id);
-      if (isNaN(carId)) return res.status(400).json({ message: 'Invalid car id' });
-
-      const car = await contractService.getCarById(carId);
-      if (!car) return res.status(404).json({ message: 'Car not found' });
-
-      res.status(200).json(car);
-    } catch (err: any) {
-      console.error(err);
-      res.status(500).json({ message: err.message || 'Internal Server Error' });
-    }
-  },
 };

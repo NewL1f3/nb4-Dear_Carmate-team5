@@ -51,7 +51,7 @@ export interface ContractResponse {
   status: Contract['status'];
   resolutionDate: string | null;
   contractPrice: number | null;
-  meetings: { id: number; date: string; alarms: string[] }[];
+  meetings: { date: string; alarms: string[] }[];
   user: Pick<User, 'id' | 'name'>;
   customer: Pick<User, 'id' | 'name'>;
   car: { id: number; model: string };
@@ -128,7 +128,6 @@ export const contractService = {
         user: { id: c.user.id, name: c.user.name },
         meetings:
           c.meetings?.map((m) => ({
-            id: m.id,
             date: m.date.toISOString(),
             alarms: (m.alarms || []).map((a) => (typeof a === 'string' ? a : new Date(a).toISOString())),
           })) || [],
@@ -195,7 +194,6 @@ export const contractService = {
       contractPrice: updated.contractPrice,
       meetings:
         updated.meetings?.map((m) => ({
-          id: m.id,
           date: m.date.toISOString(),
           alarms: (m.alarms || []).map((a) => (typeof a === 'string' ? a : new Date(a).toISOString())),
         })) || [],
@@ -233,19 +231,5 @@ export const contractService = {
       id: u.id,
       data: `${u.name} (${u.email})`,
     }));
-  },
-
-  async getCarById(id: number) {
-    const car = await contractRepository.findCarById(id);
-    if (!car) return null;
-
-    return {
-      id: car.id,
-      model: car.model.modelName,
-      carNumber: car.carNumber,
-      price: car.price,
-      mileage: car.mileage,
-      status: car.status,
-    };
   },
 };

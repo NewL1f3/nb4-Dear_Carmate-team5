@@ -6,6 +6,4 @@ generated/prisma
 
 prisma/migrations
 
-src/middlewares
-
 src/modules/users

@@ -17,4 +17,3 @@ contractRouter.delete('/:id', contractController.delete);
 contractRouter.get('/cars', contractController.getCarInfo);
 contractRouter.get('/customers', contractController.getCustomerInfo);
 contractRouter.get('/users', contractController.getUserInfo);
-contractRouter.get('/cars/:id', contractController.getCarById);

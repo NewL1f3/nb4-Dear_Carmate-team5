@@ -5,6 +5,7 @@
     "module": "commonjs", // Node.js 환경에서 사용하는 모듈 시스템
     "rootDir": "./src", // 타입스크립트 소스코드의 루트 폴더
     "outDir": "./dist", // 컴파일된 JavaScript 파일이 저장될 폴더
+    "typeRoots": ["./node_modules/@types", "./src/types"],
 
     /* ----- 엄격한 타입 검사 옵션 (강력 추천) ----- */
     "strict": true, // 모든 엄격한 타입 검사 옵션을 활성화 (가장 중요!)
@@ -19,6 +20,9 @@
     "sourceMap": true, // .map 파일을 생성하여, 디버깅 시 ts 코드를 볼 수 있게 함
     "forceConsistentCasingInFileNames": true, // 파일 이름의 대소문자를 구분하도록 강제
     "skipLibCheck": true // 의존하는 라이브러리(*.d.ts)의 타입 검사를 건너뛰어 컴파일 속도 향상
+  },
+  "ts-node": {
+    "files": true
   },
   "include": ["src/**/*", "src/types/**/*.ts"], // 컴파일할 파일 범위 (src 폴더 아래의 모든 파일)
   "exclude": ["node_modules", "dist"] // 컴파일에서 제외할 폴더

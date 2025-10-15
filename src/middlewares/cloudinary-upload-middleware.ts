@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
+import type { Request, Response, NextFunction } from 'express';
 import { v2 as cloudinary } from 'cloudinary';
 import type { UploadApiOptions } from 'cloudinary';
 import Busboy from 'busboy';
@@ -11,6 +11,13 @@ export interface UploadRequest extends Request {
   };
 }
 
+// Image
+const imageOption: UploadApiOptions = {
+  resource_type: 'image',
+  folder: 'images',
+  type: 'upload',
+};
+
 // ContractDocument
 const contractDocumentOption: UploadApiOptions = {
   resource_type: 'raw',
@@ -18,12 +25,16 @@ const contractDocumentOption: UploadApiOptions = {
   type: 'authenticated',
 };
 
+// 파일 타입
+const pdf = ['application/pdf'];
+const image = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+
 // 스트리밍 업로드 미들웨어 함수
-export const cloudinaryUploader = (option: UploadApiOptions) => {
+export const cloudinaryUploader = (option: UploadApiOptions, type: string[]) => {
   return (req: UploadRequest, res: Response, next: NextFunction) => {
     // 파일 크기 20MB 제한
     const fileLimit = 20 * 1024 * 1024;
-    const allowedImageMimeTypes = ['application/pdf'];
+    const allowedMimeTypes = type;
 
     // Busboy 인스턴스 생성
     const busboy = Busboy({
@@ -43,7 +54,7 @@ export const cloudinaryUploader = (option: UploadApiOptions) => {
       fileFound = true;
 
       // 파일 형식 검증
-      if (!allowedImageMimeTypes.includes(mimeType)) {
+      if (!allowedMimeTypes.includes(mimeType)) {
         // 파일을 Cloudinary로 보내지 않고 스트림을 무시
         fileStream.resume();
 
@@ -130,4 +141,6 @@ export const cloudinaryUploader = (option: UploadApiOptions) => {
   };
 };
 
-export const contractDocumentUpload = cloudinaryUploader(contractDocumentOption);
+export const imageUpload = cloudinaryUploader(imageOption, image);
+
+export const contractDocumentUpload = cloudinaryUploader(contractDocumentOption, pdf);

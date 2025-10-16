@@ -1,6 +1,6 @@
 import express from 'express';
 import dotenv from 'dotenv';
-import { contractRouter } from './modules/contracts/contract-router';
+import { contractRouter } from './modules/contracts/contracts-router';
 import { userRouter } from './modules/users/users-router'; // 임시
 import cors from 'cors';
 import { contractDocumentRouter } from './modules/contract-documents/contract-documents-route';

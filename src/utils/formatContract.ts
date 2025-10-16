@@ -1,5 +1,5 @@
 // utils/formatContract.ts (혹은 같은 파일 상단에 두어도 무방)
-import { ContractResponse } from '../modules/contracts/contract-service';
+import { ContractResponse } from '../modules/contracts/contracts-dto';
 import { ContractEntity } from '../types/contract'
 
 export const formatContract = (contract: ContractEntity): ContractResponse => {

@@ -1,5 +1,5 @@
 import express from 'express';
-import { contractController } from './contract-controller';
+import { contractController } from './contracts-controller';
 import { mockAuthMiddleware } from '../../middlewares/mock-auth-middleware';
 
 export const contractRouter = express.Router();

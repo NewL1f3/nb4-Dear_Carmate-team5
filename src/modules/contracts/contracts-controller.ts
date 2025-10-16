@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { contractService } from './contract-service';
+import { contractService } from './contracts-service';
 
 export const contractController = {
   async create(req: Request, res: Response) {

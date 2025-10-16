@@ -6,7 +6,7 @@ const MOCK_USER_ID = 1;
 const MOCK_USER = {
   id: MOCK_USER_ID,
   isAdmin: true, // 관리자 권한 부여, false로 해도 상관 없음
-  // 필요한 다른 사용자 정보 (예: companyId)
+  companyId: 1// 필요한 다른 사용자 정보 (예: companyId)
 };
 
 export const mockAuthMiddleware = (req: Request, res: Response, next: NextFunction) => {

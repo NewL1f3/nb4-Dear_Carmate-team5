@@ -1,0 +1,29 @@
+ ### GET CONTRACT
+ GET http://localhost:3001/contracts
+
+
+### GET CARS
+ GET http://localhost:3001/contracts/cars
+
+### GET USERS
+ GET http://localhost:3001/users/me
+
+### GET CUSTOMERS
+ GET http://localhost:3001/contracts/customers
+
+###
+curl -X POST http://localhost:3001/contracts \
+  -H "Content-Type: application/json" \
+  -d '{
+    "carId": 1,
+    "customerId": 1,
+    "meetings": [
+      {
+        "date": "2025-10-17T10:00:00.000Z",
+        "alarms": [
+          "2025-10-15T09:00:00.000Z",
+          "2025-10-15T10:00:00.000Z"
+        ]
+      }
+    ]
+  }'

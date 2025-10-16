@@ -1,57 +1,9 @@
 import { contractRepository } from './contracts-repository';
 import { Prisma, ContractStatusEnum, Contract, Meeting, User } from '@prisma/client';
-import { formatContract } from '../../utils/formatContract'; // 👈 추가
+import { formatContract } from '../../utils/formatContract';
 import { contractResponseSchema, ContractResponse, CreateContractDto, createContractSchema, updateContractSchema, UpdateContractDto } from './contracts-dto';
 
-// // ✅ [1] Validation schemas (프론트 구조에 맞춤)
-// const createContractSchema = z.object({
-//   carId: z.number().int().positive(),
-//   customerId: z.number().int().positive(),
-//   meetings: z
-//     .array(
-//       z.object({
-//         date: z.string().nonempty('미팅 날짜는 필수입니다.'), // ISO string
-//         alarms: z.array(z.string()).default([]), // ISO string[]
-//       }),
-//     )
-//     .min(1, '미팅 정보는 최소 1개 이상이어야 합니다.'),
-// });
-
-// const updateContractSchema = z.object({
-//   status: z.nativeEnum(ContractStatusEnum).optional(),
-//   resolutionDate: z.string().nullable().optional(),
-//   contractPrice: z.number().int().nonnegative().optional(),
-//   userId: z.number().int().optional(),
-//   customerId: z.number().int().optional(),
-//   carId: z.number().int().optional(),
-//   meetings: z
-//     .array(
-//       z.object({
-//         date: z.string(),
-//         alarms: z.array(z.string()),
-//       }),
-//     )
-//     .optional(),
-// });
-
-// export interface AuthenticatedUser {
-//   id: number;
-//   companyId: number;
-// }
-
-// export interface ContractResponse {
-//   id: number;
-//   status: Contract['status'];
-//   resolutionDate: string | null;
-//   contractPrice: number | null;
-//   meetings: { date: string; alarms: string[] }[];
-//   user: Pick<User, 'id' | 'name'>;
-//   customer: Pick<User, 'id' | 'name'>;
-//   car: { id: number; model: string };
-// }
-
 export const contractService = {
-  // ✅ [2] CREATE
   async createContract(user: Express.User, body: CreateContractDto): Promise<ContractResponse> {
     const parsed = createContractSchema.safeParse(body);
     if (!parsed.success) {
@@ -86,7 +38,6 @@ export const contractService = {
     return contractResponseSchema.parse(dto);
   },
 
-  // ✅ [3] GET (검색 포함)
   async getContracts(companyId: number, search?: string) {
     const contracts = await contractRepository.findContracts(companyId, search);
 
@@ -109,7 +60,6 @@ export const contractService = {
     }, defaultStructure);
   },
 
-  // ✅ [4] UPDATE
   async updateContract(contractId: number, data: UpdateContractDto) {
     const parsed = updateContractSchema.safeParse(data);
     if (!parsed.success) {
@@ -144,12 +94,10 @@ export const contractService = {
     return contractResponseSchema.parse(dto);
   },
 
-  // ✅ [5] DELETE
   async deleteContract(id: number): Promise<void> {
     await contractRepository.deleteContract(id);
   },
 
-  // ✅ [6] Additional Info
   async getCarInfo(companyId: number) {
     const cars = await contractRepository.findCarsByCompany(companyId);
     return cars.map((car) => ({

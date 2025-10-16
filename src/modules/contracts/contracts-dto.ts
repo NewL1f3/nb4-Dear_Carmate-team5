@@ -2,7 +2,6 @@
 import { z } from 'zod';
 import { Contract, Meeting, User, ContractStatusEnum } from '@prisma/client';
 
-// ✅ [1] 공통 응답 DTO
 export const contractResponseSchema = z.object({
   id: z.number(),
   status: z.string(),
@@ -10,7 +9,7 @@ export const contractResponseSchema = z.object({
   contractPrice: z.number().nullable(),
   meetings: z.array(
     z.object({
-      id: z.number().optional(), // formatContract에서 제공되면 유지
+      id: z.number().optional(), 
       date: z.string(),
       alarms: z.array(z.string()),
     }),
@@ -22,7 +21,6 @@ export const contractResponseSchema = z.object({
 
 export type ContractResponse = z.infer<typeof contractResponseSchema>;
 
-// ✅ [2] 생성 DTO
 export const createContractSchema = z.object({
   carId: z.number().int().positive(),
   customerId: z.number().int().positive(),
@@ -38,7 +36,6 @@ export const createContractSchema = z.object({
 
 export type CreateContractDto = z.infer<typeof createContractSchema>;
 
-// ✅ [3] 수정 DTO
 export const updateContractSchema = z.object({
   status: z.nativeEnum(ContractStatusEnum).optional(),
   resolutionDate: z.string().datetime().nullable().optional(),

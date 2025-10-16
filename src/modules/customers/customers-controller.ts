@@ -2,7 +2,7 @@ import prisma from '../../lib/prisma';
 import { AgeGroupEnum, GenderEnum, RegionEnum } from '@prisma/client';
 import { unauthorizedError, serverError, databaseCheckError, noCustomerError, badRequestError } from '../../lib/errors';
 import { customerBodySchema, customerIdSchema, getManyCustomerSchema } from '../../lib/zod';
-import { Request, Response, NextFunction } from 'express';
+import { Request, Response, NextFunction, request } from 'express';
 import Busboy from 'busboy';
 import csv from 'csv-parser';
 import { Readable } from 'stream';
@@ -188,43 +188,10 @@ export class customerController {
   };
 
   uploadCustomer = async function (req: Request, res: Response, next: NextFunction) {
-    const busboy = Busboy({ headers: req.headers });
-
-    busboy.on('file', (fieldname: string, file: Readable, filename: string, encoding: string, mimetype: string) => {
-      if (mimetype !== 'text/csv') {
-        res.status(400).json({ error: 'CSV 파일만 업로드할 수 있습니다.' });
-        return;
-      }
-
-      let rows: any[] = [];
-      file
-        .pipe(csv())
-        .on('data', (row) => {
-          rows.push({
-            name: row.name,
-            gender: row.gender || null,
-            phoneNumber: row.phoneNumber || null,
-            ageGroup: row.ageGroup || null,
-            region: row.region || null,
-            email: row.email || null,
-            memo: row.memo || null,
-          });
-        })
-        //여기부분 필수필드랑 아닌거 구분하기
-        .on('end', async () => {
-          console.log('CSV 파싱 완료, 총 행:', rows.length);
-
-          try {
-            const result = await prisma.customer.createMany({ data: rows });
-            res.status(201).send({ message: '성공적으로 등록되었습니다' });
-          } catch (err) {
-            console.error(err);
-            throw new Error('데이터 생성 오류');
-          }
-        });
-    });
-
-    req.pipe(busboy);
+    const result = await customerService.uploadCustomer(req);
+    if (result) {
+      res.status(201).send({ message: '성공적으로 등록되었습니다' });
+    }
   };
 }
 

@@ -148,6 +148,7 @@ class customerService {
     };
     return returnData;
   };
+
   patchCustomer = async function ({ data, customerId, companyId }: patchInput) {
     let { ageGroup, region, gender, ...otherData } = data;
 
@@ -188,42 +189,21 @@ class customerService {
       },
     };
 
-    //데이터 업데이트
-    let patchCustomer;
-    try {
-      patchCustomer = await prisma.customer.update({
-        data: newData,
-        where: { id: customerId },
-      });
-    } catch (error) {
-      throw databaseCheckError;
-    }
-
+    const patchCustomer = await customerRepository.updatedCustomers(newData, customerId);
     //front에 맞게 formatting
     const response = responseFomatiing(patchCustomer);
     return response;
   };
+
   deleteCustomer = async function (customerId: number) {
     //customer 존재 확인
-    try {
-      const customer = await prisma.customer.findFirst({
-        where: { id: customerId },
-      });
-      if (!customer) {
-        throw noCustomerError;
-      }
-    } catch (error) {
-      throw databaseCheckError;
+    const customer = await customerRepository.findCustomer(customerId);
+    if (!customer) {
+      throw noCustomerError;
     }
 
     //customer 삭제
-    try {
-      await prisma.customer.delete({
-        where: { id: customerId },
-      });
-    } catch (error) {
-      throw databaseCheckError;
-    }
+    await customerRepository.deleteCustomer(customerId);
   };
 
   getOneCustomer = async function (customerId: number) {
@@ -245,7 +225,47 @@ class customerService {
     return response;
   };
 
-  uploadCustomer = async function () {};
+  uploadCustomer = async function (req:Request) {
+    const busboy = Busboy({ headers: req.headers });
+    let result;
+    busboy.on('file', (fieldname: string, file: Readable, filename: string, encoding: string, mimetype: string) => {
+      if (mimetype !== 'text/csv') {
+        throw new Error('CSV 파일만 업로드할 수 있습니다.');
+      }
+
+      let rows: any[] = [];
+      file
+        .pipe(csv())
+        .on('data', (row) => {
+          rows.push({
+            name: row.name,
+            gender: row.gender || null,
+            phoneNumber: row.phoneNumber || null,
+            ageGroup: row.ageGroup || null,
+            region: row.region || null,
+            email: row.email || null,
+            memo: row.memo || null,
+          });
+        })
+        //여기부분 필수필드랑 아닌거 구분하기
+        .on('end', async () => {
+          console.log('CSV 파싱 완료, 총 행:', rows.length);
+          try {
+            const result = await prisma.customer.createMany({ data: rows });
+            
+            
+          } catch (err) {
+            console.error(err);
+            throw new Error('데이터 생성 오류');
+          }
+        });
+        
+    });
+
+    req.pipe(busboy);
+    return result;
+  };
+  };
 }
 
 function responseFomatiing(customer: customer) {

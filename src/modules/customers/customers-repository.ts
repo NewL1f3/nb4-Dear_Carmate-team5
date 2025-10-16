@@ -1,5 +1,6 @@
 import prisma from '../../lib/prisma';
-import type { Customer, Company } from '@prisma/client';
+import type { Customer, Company, Prisma } from '@prisma/client';
+import { databaseCheckError } from '../../lib/errors';
 
 interface getManyInput {
   searchBy: string;
@@ -9,6 +10,10 @@ interface getManyInput {
 }
 
 interface createData extends Customer {
+  company: any;
+}
+
+interface updatedData extends Prisma.CustomerUpdateInput {
   company: any;
 }
 
@@ -60,6 +65,41 @@ class customerRepository {
   countCustomers = async () => {
     const customerCount = await prisma.customer.count({});
     return customerCount;
+  };
+
+  updatedCustomers = async (updateInputData: updatedData, customerId: number) => {
+    let patchCustomer;
+    try {
+      patchCustomer = await prisma.customer.update({
+        data: updateInputData,
+        where: { id: customerId },
+      });
+      return patchCustomer;
+    } catch (error) {
+      throw databaseCheckError;
+    }
+  };
+
+  findCustomer = async (customerId: number) => {
+    let customer;
+    try {
+      customer = await prisma.customer.findFirst({
+        where: { id: customerId },
+      });
+    } catch (error) {
+      throw databaseCheckError;
+    }
+    return customer;
+  };
+
+  deleteCustomer = async (customerId: number) => {
+    try {
+      await prisma.customer.delete({
+        where: { id: customerId },
+      });
+    } catch (error) {
+      throw databaseCheckError;
+    }
   };
 }
 

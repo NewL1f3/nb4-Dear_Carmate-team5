@@ -1,11 +1,13 @@
-import prisma from '../lib/prisma';
+import prisma from '../../lib/prisma';
 import { AgeGroupEnum, GenderEnum, RegionEnum } from '@prisma/client';
-import { unauthorizedError, serverError, databaseCheckError, noCustomerError, badRequestError } from '../lib/errors';
-import { customerBodySchema, customerIdSchema, getManyCustomerSchema } from '../lib/zod';
+import { unauthorizedError, serverError, databaseCheckError, noCustomerError, badRequestError } from '../../lib/errors';
+import { customerBodySchema, customerIdSchema, getManyCustomerSchema } from '../../lib/zod';
 import { Request, Response, NextFunction } from 'express';
 import Busboy from 'busboy';
 import csv from 'csv-parser';
 import { Readable } from 'stream';
+import customerService from './customer-service';
+
 //controller
 
 enum regionEnumEng {
@@ -70,8 +72,10 @@ interface CustomerSearchParams {
   searchBy: SearchBy;
   keyword: string;
 }
+
 //마지막에 formatting 필요(영어 -> 한글, createdAt, updatedAt 삭제)
 //response formatting 필요(createdAt, updatedAt 빼기)
+
 export class customerController {
   postCustomer = async function (req: Request, res: Response, next: NextFunction) {
     // 실제 코드
@@ -84,45 +88,15 @@ export class customerController {
     if (!user) {
       throw unauthorizedError;
     }
+
     const companyId = user.companyId;
 
     let data = req.body;
-
-    const bodyParsed = customerBodySchema.safeParse(data);
-    if (!bodyParsed.success) {
-      console.log('에러 테스트용 코드 1');
-      throw badRequestError;
-    }
-    let { region, ageGroup, ...otherData } = data;
-
-    if (region) {
-      region = regionKorToEng(region);
-    }
-    if (ageGroup) {
-      ageGroup = ageKorToEng(ageGroup);
-    }
-
-    const mediumData = { region, ageGroup, ...otherData };
-    const newData = {
-      ...mediumData,
-      company: {
-        connect: { id: companyId },
-      },
-    };
-
-    let newCustomer;
-    try {
-      newCustomer = await prisma.customer.create({
-        data: newData,
-      });
-    } catch (error) {
-      // throw databaseCheckError;
-      console.error(error);
-    }
+    let newCustomer = customerService.postCustomer({ companyId, data });
 
     return res.status(201).send(newCustomer);
   };
-  //마지막에 formatting 필요(영어 -> 한글, createdAt, updatedAt 삭제)
+
   getManyCustomer = async function (req: Request, res: Response, next: NextFunction) {
     // 정석 코드
     // const user = req.user;
@@ -136,62 +110,9 @@ export class customerController {
       throw unauthorizedError;
     }
 
-    let { page = 1, pageSize = 8, searchBy = 'name', keyword = '' } = req.query as unknown as CustomerSearchParams;
+    let { page = '1', pageSize = '8', searchBy = 'name', keyword = '' } = req.query as unknown as CustomerSearchParams;
 
-    const pageNum: number = +page;
-    const pageSizeNum: number = +pageSize;
-    const newParams = { pageNum, pageSizeNum, searchBy, keyword };
-    const paramParsed = getManyCustomerSchema.safeParse(newParams);
-    if (!paramParsed.success) {
-      throw badRequestError;
-    }
-
-    const limit = pageSizeNum;
-    const skip = pageSizeNum * (pageNum - 1);
-    let customers;
-    if (searchBy == 'name') {
-      customers = await prisma.customer.findMany({
-        take: limit,
-        skip,
-        where: {
-          name: {
-            contains: keyword,
-          },
-        },
-      });
-    }
-    if (searchBy == 'email') {
-      customers = await prisma.customer.findMany({
-        take: limit,
-        skip,
-        where: {
-          email: {
-            contains: keyword,
-          },
-        },
-      });
-    }
-
-    const customerCount = await prisma.customer.count({});
-
-    const currentPage = page;
-    const totalPages = Math.floor(customerCount) + 1;
-    const totalItemCount = customerCount;
-
-    let formattedCustomers = [];
-    if (customers) {
-      for (let data of customers) {
-        const formattedCustomer = responseFomatiing(data);
-        formattedCustomers.push(formattedCustomer);
-      }
-    }
-
-    const returnData = {
-      currentPage,
-      totalPages,
-      totalItemCount,
-      data: formattedCustomers,
-    };
+    const returnData = await customerService.getManyCustomer({ page, pageSize, searchBy, keyword });
 
     return res.status(200).send(returnData);
   };
@@ -205,63 +126,20 @@ export class customerController {
       where: { id: 2 },
     });
 
+    //user가 없을 시 에러 발생
     if (!user) {
       throw unauthorizedError;
     }
-    const companyId = user.companyId;
 
+    const companyId = user.companyId;
     let customerId = +req.params.customerId;
+    let data = req.body;
+
     if (typeof customerId !== 'number') {
       throw badRequestError;
     }
 
-    try {
-      const customer = await prisma.customer.findFirst({
-        where: { id: customerId },
-      });
-      if (!customer) {
-        throw noCustomerError;
-      }
-    } catch (error) {
-      throw databaseCheckError;
-    }
-
-    let data = req.body;
-
-    const bodyParsed = customerBodySchema.safeParse(data);
-    if (!bodyParsed.success) {
-      throw badRequestError;
-    }
-
-    let { ageGroup, region, ...otherData } = data;
-
-    if (ageGroup) {
-      ageGroup = ageKorToEng(ageGroup);
-    }
-    if (region) {
-      region = regionKorToEng(region);
-    }
-
-    const newData = {
-      ageGroup,
-      region,
-      ...otherData,
-      company: {
-        connect: { id: companyId },
-      },
-    };
-    let patchCustomer;
-
-    try {
-      patchCustomer = await prisma.customer.update({
-        data: newData,
-        where: { id: customerId },
-      });
-    } catch (error) {
-      throw databaseCheckError;
-    }
-
-    const response = responseFomatiing(patchCustomer);
+    const response = await customerService.patchCustomer({ data, customerId, companyId });
     return res.status(200).send(response);
   };
 
@@ -282,30 +160,14 @@ export class customerController {
       throw unauthorizedError;
     }
 
-    try {
-      const customer = await prisma.customer.findFirst({
-        where: { id: customerId },
-      });
-      if (!customer) {
-        throw noCustomerError;
-      }
-    } catch (error) {
-      throw databaseCheckError;
-    }
-
-    try {
-      await prisma.customer.delete({
-        where: { id: customerId },
-      });
-    } catch (error) {
-      throw databaseCheckError;
-    }
+    await customerService.deleteCustomer(customerId);
 
     return res.status(204).send({ message: `고객 삭제 성공` });
   };
 
   getOneCustomer = async function (req: Request, res: Response, next: NextFunction) {
     const customerId = +req.params.customerId;
+    //customerId 유효성 검사
     if (typeof customerId !== 'number') {
       throw badRequestError;
     }
@@ -321,19 +183,7 @@ export class customerController {
       throw unauthorizedError;
     }
 
-    let customer;
-    try {
-      customer = await prisma.customer.findFirst({
-        where: { id: customerId },
-      });
-      if (!customer) {
-        throw noCustomerError;
-      }
-    } catch (error) {
-      throw databaseCheckError;
-    }
-
-    const response = responseFomatiing(customer);
+    const response = await customerService.getOneCustomer(customerId);
     return res.status(200).send(response);
   };
 
@@ -346,21 +196,30 @@ export class customerController {
         return;
       }
 
-      const csvRows = [];
+      let rows: any[] = [];
       file
         .pipe(csv())
         .on('data', (row) => {
-          console.log('CSV 행:', row);
-          csvRows.push(row);
+          rows.push({
+            name: row.name,
+            gender: row.gender || null,
+            phoneNumber: row.phoneNumber || null,
+            ageGroup: row.ageGroup || null,
+            region: row.region || null,
+            email: row.email || null,
+            memo: row.memo || null,
+          });
         })
+        //여기부분 필수필드랑 아닌거 구분하기
         .on('end', async () => {
-          console.log('CSV 파싱 완료, 행 개수:', csvRows.length);
+          console.log('CSV 파싱 완료, 총 행:', rows.length);
 
           try {
-            // await prisma.customer.createMany({ data: csvRows });
-            res.send();
+            const result = await prisma.customer.createMany({ data: rows });
+            res.status(201).send({ message: '성공적으로 등록되었습니다' });
           } catch (err) {
-            throw new Error();
+            console.error(err);
+            throw new Error('데이터 생성 오류');
           }
         });
     });

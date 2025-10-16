@@ -5,7 +5,6 @@ import { userRouter } from './modules/users/users-router'; // 임시
 import cors from 'cors';
 import { contractDocumentRouter } from './modules/contract-documents/contract-documents-route';
 import { v2 as cloudinary } from 'cloudinary';
-import cors from 'cors';
 import { startCleanupJob } from './lib/cron-jobs';
 
 dotenv.config();

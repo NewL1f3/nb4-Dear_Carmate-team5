@@ -32,14 +32,6 @@ const updateContractSchema = z.object({
       }),
     )
     .optional(),
-  contractDocuments: z
-    .array(
-      z.object({
-        fileName: z.string().min(1),
-        fileUrl: z.string().url(),
-      }),
-    )
-    .optional(),
 });
 
 export interface AuthenticatedUser {
@@ -126,10 +118,6 @@ export const contractService = {
     const existing = await contractRepository.findContractById(contractId);
     if (!existing) throw new Error('Contract not found');
 
-    if (validated.contractDocuments && validated.status !== 'contractSuccessful') {
-      throw new Error('Cannot upload documents before contract is successful');
-    }
-
     const updateData: Prisma.ContractUpdateInput = {
       status: validated.status,
       resolutionDate: validated.resolutionDate ? new Date(validated.resolutionDate) : null,
@@ -143,16 +131,6 @@ export const contractService = {
             create: validated.meetings.map((m) => ({
               date: new Date(m.date),
               alarms: m.alarms.map((a) => new Date(a)),
-            })),
-          }
-        : undefined,
-      contractDocuments: validated.contractDocuments
-        ? {
-            deleteMany: { contractId },
-            create: validated.contractDocuments.map((doc) => ({
-              contractId,
-              fileName: doc.fileName,
-              fileUrl: doc.fileUrl,
             })),
           }
         : undefined,

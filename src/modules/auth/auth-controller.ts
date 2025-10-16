@@ -48,7 +48,7 @@ class authController {
 
       // 3. JWT 토큰 발급
       const accessToken = jwt.sign( //사용자 정보로 Access/Refresh Token 생성
-        { userId: user.id, email: user.email },
+        { userId: user.id, email: user.email, isAdmin: user.isAdmin },
         process.env.JWT_SECRET || "secretkey",
         { expiresIn: "1h" }
       );

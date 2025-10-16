@@ -229,7 +229,7 @@ class userController {
     }
   };
 
- 
+
 
 
   //회원 탈퇴 
@@ -266,42 +266,70 @@ class userController {
   };
 
 
+  // ① 인증 정보 확인 (JWT 등
+  // ② 유저 존재 여부 확인
+  // 3.권한 검증 (필요 시)
+  // ④ 삭제 실행 (DB 연동)
+  // ⑤ 응답 반환
 
 
+  // ✅ 관리자 전용 유저 삭제
+  deleteUser = async (req: Request, res: Response) => {
+    try {
+      const userInfo = (req as any).user;
+      if (!userInfo) {
+        return res.status(401).json({ message: "로그인이 필요합니다." });
+      }
 
-  //유저 삭제 
-  //   deleteUser = async(req: Request, res: Response) =>{
-  //     const userInfo = (req as any).user;
-  //     const userId = +userInfo.id;
+      const userId = Number(userInfo.userId);
+      const targetUserId = Number(req.params.userId);
 
-  //     let targetUserId = (req as any).params.userId;
-  //     targetUserId = +targetUserId;
-  //     if (typeof targetUserId != 'number'){
-  //       throw new Error("잘못된 요청입니다")
-  //     }
+      console.log("삭제 1");
 
-  //     const targetUser = await prisma.user.findFirst({where: {
-  //       id:targetUserId
-  //     }})
-  //     if (!targetUser){
-  //       throw new Error("존재하지 않는 유저 입니다")
-  //     }
+      if (isNaN(targetUserId)) {
+        console.log("삭제 2");
+        return res.status(400).json({ message: "잘못된 요청입니다." });
+      }
+      if (!userInfo.isAdmin) {
+        return res.status(403).json({ message: "관리자 권한이 필요합니다." });
+      }
 
-  //     if (!userInfo.isAdmin){
-  //       throw new Error("관리자 권한이 필요합니다 ")
-  //     }
+      const targetUser = await prisma.user.findUnique({
+        where: { id: targetUserId },
+        include: { company: true },
+      });
+      console.log("삭제 3");
 
-  //     try{
-  //       await prisma.user.delete({
-  //         where:{id:targetUserId}
-  //       })
-  //     }catch(error){
-  //       console.error(error);
-  //       throw new Error("데이터베이스 에러 발생")
-  //     }
-  //   }
+      if (!targetUser) {
+        return res.status(404).json({ message: "존재하지 않는 유저입니다." });
+      }
+      console.log("삭제 4");
+
+
+      // 🔹 6. 트랜잭션으로 유저 삭제 + 회사 인원수 감소 동시 처리
+    await prisma.$transaction(async (tx) => {
+      await tx.user.delete({ where: { id: targetUserId } });
+
+      if (targetUser.companyId) {
+        await tx.company.update({
+          where: { id: targetUser.companyId },
+          data: { userCount: { decrement: 1 } },
+        });
+      }
+    });
+
+      console.log("삭제 6");
+      return res.status(200).json({ message: "유저 삭제 성공" });
+
+    } catch (error: any) {
+      console.error("❌ 유저 삭제 에러:", error.message);
+      return res.status(500).json({
+        message: "회원 삭제 중 서버 오류가 발생했습니다.",
+        error: error.message,
+      });
+    }
+  };
 }
-
 
 export default new userController();
 

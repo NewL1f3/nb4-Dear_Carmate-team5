@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { contractRepository } from './contract-repository';
 import { Prisma, ContractStatusEnum, Contract, Meeting, User } from '@prisma/client';
+import { formatContract } from '../../utils/formatContract'; // 👈 추가
 
 // ✅ [1] Validation schemas (프론트 구조에 맞춤)
 const createContractSchema = z.object({
@@ -89,20 +90,7 @@ export const contractService = {
       meetings: { create: meetingData },
     });
 
-    return {
-      id: contract.id,
-      status: contract.status,
-      resolutionDate: contract.resolutionDate?.toISOString() ?? null,
-      contractPrice: contract.contractPrice,
-      meetings: (contract.meetings || []).map((m) => ({
-        id: m.id,
-        date: m.date.toISOString(),
-        alarms: (m.alarms || []).map((a) => (typeof a === 'string' ? a : new Date(a).toISOString())),
-      })),
-      user: { id: contract.user.id, name: contract.user.name },
-      customer: { id: contract.customer.id, name: contract.customer.name },
-      car: { id: contract.car.id, model: contract.car.model.modelName },
-    };
+    return formatContract(contract);
   },
 
   // ✅ [3] GET (검색 포함)
@@ -117,29 +105,14 @@ export const contractService = {
       contractSuccessful: { totalItemCount: 0, data: [] },
     };
 
-    const result = contracts.reduce<Record<string, { totalItemCount: number; data: ContractResponse[] }>>((acc, c) => {
+    const result = contracts.reduce((acc, c) => {
       if (!acc[c.status]) acc[c.status] = { totalItemCount: 0, data: [] };
-
       acc[c.status].totalItemCount++;
-      acc[c.status].data.push({
-        id: c.id,
-        car: { id: c.car.id, model: c.car.model.modelName },
-        customer: { id: c.customer.id, name: c.customer.name },
-        user: { id: c.user.id, name: c.user.name },
-        meetings:
-          c.meetings?.map((m) => ({
-            date: m.date.toISOString(),
-            alarms: (m.alarms || []).map((a) => (typeof a === 'string' ? a : new Date(a).toISOString())),
-          })) || [],
-        contractPrice: c.contractPrice,
-        resolutionDate: c.resolutionDate ? c.resolutionDate.toISOString() : null,
-        status: c.status,
-      });
-
+      acc[c.status].data.push(formatContract(c));
       return acc;
-    }, {});
+    }, defaultStructure);
 
-    return { ...defaultStructure, ...result };
+    return result;
   },
 
   // ✅ [4] UPDATE
@@ -186,21 +159,7 @@ export const contractService = {
     };
 
     const updated = await contractRepository.updateContract(contractId, updateData);
-
-    return {
-      id: updated.id,
-      status: updated.status,
-      resolutionDate: updated.resolutionDate?.toISOString() ?? null,
-      contractPrice: updated.contractPrice,
-      meetings:
-        updated.meetings?.map((m) => ({
-          date: m.date.toISOString(),
-          alarms: (m.alarms || []).map((a) => (typeof a === 'string' ? a : new Date(a).toISOString())),
-        })) || [],
-      user: { id: updated.user.id, name: updated.user.name },
-      customer: { id: updated.customer.id, name: updated.customer.name },
-      car: { id: updated.car.id, model: updated.car.model.modelName },
-    };
+    return formatContract(updated);
   },
 
   // ✅ [5] DELETE

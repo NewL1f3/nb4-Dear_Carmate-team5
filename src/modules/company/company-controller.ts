@@ -9,23 +9,24 @@ class companyController{
  postCompany = async(req:AuthRequest , res: Response) => {
   try {
     const result = await CompaniesService.createCompany(req.body, req['user']);
-    res.status(201).json(result);
+    return res.status(201).json(result);
   } catch (err: any) {
-    res.status(err.status || 400).json({ message: err.message || '잘못된 요청입니다' });
+    console.error(err);
+    return res.status(err.status || 400).json({ message: err.message || '잘못된 요청입니다' });
   }
 }
 
  getCompanies = async(req:AuthRequest , res: Response) => {
   try {
     const result = await CompaniesService.getCompanies(req.query, req['user']);
-    res.json({
+    return res.json({
       currentPage: Number(req.query.page) || 1,
       //totalpages추가 필요
       totalItemCount: result.totalItemCount,
       data: result
     });
   } catch (err: any) {
-    res.status(err.status || 400).json({ message: err.message || '잘못된 요청입니다' });
+    return res.status(err.status || 400).json({ message: err.message || '잘못된 요청입니다' });
   }
 }
 
@@ -33,7 +34,7 @@ class companyController{
   try {
     const id = Number(req.params.companyId);
     const result = await CompaniesService.updateCompany(id, req.body, req['user']);
-    res.json(result);
+    return res.json(result);
   } catch (err: any) {
     res.status(err.status || 400).json({ message: err.message || '잘못된 요청입니다' });
   }

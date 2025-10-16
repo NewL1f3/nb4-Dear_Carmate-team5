@@ -1,19 +1,16 @@
 import express from "express";
 import companyController from "./company-controller";
 import { requireAuth } from "../../middleware/auth";
+import { mockAuthMiddleware } from "../../middleware/moc-middleware";
 
 const companyRouter = express.Router();
 
-// 'http://localhost:3000/companies/' post request가 오면 requireAuth함수 , companyController.postCompany함수 순서대로 실행을 시켜줘
-companyRouter.post('/', requireAuth, companyController.postCompany);
-companyRouter.get('/', requireAuth, companyController.getCompanies);
-// get 'http://localhost:3000/companies?page=2&pageSize=10'
 
-companyRouter.get('/users', requireAuth, )
-
-//  patch 'http://localhost:3000/companies/:companyId' requireAuth 가오면 
-companyRouter.patch('/:companyId', requireAuth, companyController.updateCompany);
-companyRouter.delete('/:companyId', requireAuth, companyController.deleteCompany);
+companyRouter.post('/',mockAuthMiddleware, requireAuth, companyController.postCompany);
+companyRouter.get('/', mockAuthMiddleware, requireAuth, companyController.getCompanies);
+companyRouter.get('/users', mockAuthMiddleware, requireAuth, )
+companyRouter.patch('/:companyId', mockAuthMiddleware, requireAuth, companyController.updateCompany);
+companyRouter.delete('/:companyId', mockAuthMiddleware, requireAuth, companyController.deleteCompany);
 
 /*
 
@@ -43,3 +40,4 @@ response를 사용자에게 줘야 함
 
 */
 
+export default companyRouter;

@@ -22,18 +22,25 @@ class CompanyRepository {
     return await prisma.company.create({ data });
   }
 
-  findAll = async function({page, pageSize, searchBy, keyword}: findAllinput) {
-    const where = (searchBy && keyword) ? { [searchBy]: { contains: keyword } } : {};
-    const totalItemCount = await prisma.company.count({ where });
-    const pageNum = +page
-    const pageSizeNum = +pageSize
-    const data = await prisma.company.findMany({
+  getManyCompany = async function(page: number,pageSize: number, where:any) {
+    try{
+      const data = await prisma.company.findMany({
       where,
-      skip: (pageNum - 1) * pageSizeNum,
-      take: pageSizeNum,
+      skip: (page - 1) * pageSize,
+      take: pageSize,
       include: { users: true }
     });
-    return { totalItemCount, data };
+    return data
+    }catch(error){
+      console.error(error);
+      throw new Error("error occured")
+    }
+    
+  }
+
+  getCompanyCount = async function(){
+    const count = await prisma.company.count({})
+    return count
   }
 
    findById = async function(companyId: number) {
@@ -49,21 +56,25 @@ class CompanyRepository {
     return await prisma.company.delete({ where: { id: companyId } });
   }
 
-  findUsersByCompany = async function({page, pageSize, searchBy, keyword}:findUsersInput) {
-    
-    const where = (searchBy && keyword) ? { [searchBy]: { contains: keyword } } : {};
-    const totalItemCount = await prisma.user.count({ where });
-    
-    const pageNum = +page;
-    const pageSizeNum = +pageSize;
-
-    const data = await prisma.user.findMany({
+  findCompanyUsers = async function(where:any, skip:number,take:number) {
+    try{
+      const users = await prisma.user.findMany({
       where,
-      skip: (pageNum - 1) * pageSizeNum,
-      take: pageSizeNum,
+      skip,
+      take,
+      //include에서 company 수정 필요
       include: { company: true }
     });
-    return { totalItemCount, data };
+      return users;
+    }catch(error){
+      console.error(error);
+      throw new Error("error occured");
+    }
+  };
+  getCompanyUserCount = async function() {
+    const count = await prisma.user.count({
+      where:{companyId = }
+    })
   }
-};
+}
 export default new CompanyRepository

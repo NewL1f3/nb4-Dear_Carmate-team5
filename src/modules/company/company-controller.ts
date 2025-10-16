@@ -19,16 +19,26 @@ class companyController{
  getCompanies = async(req:AuthRequest , res: Response) => {
   try {
     const result = await CompaniesService.getCompanies(req.query, req['user']);
-    return res.json({
-      currentPage: Number(req.query.page) || 1,
-      //totalpages추가 필요
-      totalItemCount: result.totalItemCount,
-      data: result
-    });
+    return res.json(result);
   } catch (err: any) {
     return res.status(err.status || 400).json({ message: err.message || '잘못된 요청입니다' });
   }
 }
+
+ getcompanyUsers = async (req:AuthRequest , res:Response) => {
+  try {
+    const result = await CompaniesService.getCompanyUsers(req.query, req['user']);
+    return res.json({
+      currentPage: Number(req.query.page) ||1,
+      totalItemCount: result.totalItemCount,
+      data:result
+    });
+  }catch(error){
+    console.log(error)
+    res.send(error)
+  }
+}
+
 
  updateCompany = async (req:AuthRequest , res:Response) => {
   try {

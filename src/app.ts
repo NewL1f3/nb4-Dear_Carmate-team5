@@ -5,7 +5,7 @@ const app = express();
 app.use(express.json());
 
 // http://localhost:3000/companies 여기 주소로 요청이 오면 companyRouter를 실행시켜줘
-app.use('/company', companyRouter);
+app.use('/companies', companyRouter);
 
 
 app.listen(3000, () => {

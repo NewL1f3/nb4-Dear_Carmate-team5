@@ -8,7 +8,7 @@ const companyRouter = express.Router();
 
 companyRouter.post('/',mockAuthMiddleware, requireAuth, companyController.postCompany);
 companyRouter.get('/', mockAuthMiddleware, requireAuth, companyController.getCompanies);
-companyRouter.get('/users', mockAuthMiddleware, requireAuth, )
+companyRouter.get('/users', mockAuthMiddleware, requireAuth, companyController.getcompanyUsers)
 companyRouter.patch('/:companyId', mockAuthMiddleware, requireAuth, companyController.updateCompany);
 companyRouter.delete('/:companyId', mockAuthMiddleware, requireAuth, companyController.deleteCompany);
 

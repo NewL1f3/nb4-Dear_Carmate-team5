@@ -1,6 +1,7 @@
 import express, { Request, Response, NextFunction } from 'express';
 import * as bcrypt from 'bcrypt';
 import authenticateToken from '../../middleware/auth-middleware';
+import { JwtPayload } from "jsonwebtoken";
 import { PrismaClient } from '@prisma/client';
 export const prisma = new PrismaClient();
 
@@ -13,7 +14,7 @@ interface UserRegisterBody {
   phoneNumber: string;
   password: string;
   passwordConfirmation: string;
-  company: string;
+  companyName: string;
   companyCode: string;
 }
 
@@ -21,7 +22,7 @@ interface UserRegisterBody {
 class userController {
   register = async (req: Request, res: Response) => {
     try {
-      const { name, email, employeeNumber, phoneNumber, password, passwordConfirmation, company, companyCode } = req.body;
+      const { name, email, employeeNumber, phoneNumber, password, passwordConfirmation, companyName, companyCode } = req.body;
 
 
       //1.비밀번호 확인
@@ -38,13 +39,13 @@ class userController {
       console.log('회원가입2');
 
       // 3. 회사 코드 검증
-      if (!company || !companyCode) {
+      if (!companyName || !companyCode) {
         return res.status(400).json({ message: "회사명과 회사 코드는 필수입니다." });
       }
 
       const companyRecord = await prisma.company.findFirst({
         where: {
-          companyName: company,
+          companyName: companyName,
           companyCode: companyCode,
         },
       });
@@ -88,6 +89,14 @@ class userController {
         },
       });
       console.log('회원가입5');
+
+      // 6️⃣ 회사 영업원 수(userCount) +1
+      await prisma.company.update({
+        where: { id: companyRecord.id },
+        data: {
+          userCount: { increment: 1 },
+        },
+      });
 
       return res.status(201).json(newUser);
     } catch (err) {
@@ -143,13 +152,15 @@ class userController {
 
 
 
-//정보 수정
-patchMyInfo = async (req: Request, res: Response) => {
+
+  //정보 수정
+  patchMyInfo = async (req: Request, res: Response) => {
     try {
       // 토큰에서 유저 ID 추출
-      const decoded = (req as any).user as JwtPayload;
-      const userId = decoded.userId;
+      const decoded = (req as any).user as JwtPayload;  //(req as any).user = decoded; // 토큰 검증 후 유저 정보 저장
+      const userId = decoded.userId;  //그 안의 userId(로그인한 사용자 식별자)를 꺼낸다
 
+      console.log("여기 1", req.body)
       const {
         employeeNumber,
         phoneNumber,
@@ -159,37 +170,45 @@ patchMyInfo = async (req: Request, res: Response) => {
         imageUrl,
       } = req.body;
 
+      console.log("여기 2")
+
       // ✅ 유저 존재 확인
       const user = await prisma.user.findUnique({ where: { id: userId } });
       if (!user) {
-        return res.status(404).json({ message: "사용자를 찾을 수 없습니다." });
+        throw new Error("존재하지 않는 유저입니다.");
       }
-
+      console.log("여기 3")
       // ✅ 현재 비밀번호 확인
       const passwordMatch = await bcrypt.compare(currentPassword, user.password);
       if (!passwordMatch) {
-        return res.status(401).json({ message: "현재 비밀번호가 올바르지 않습니다." });
+        throw new Error("현재 비밀번호가 올바르지 않습니다.");
       }
+      console.log("여기 4")
+
 
       // ✅ 새 비밀번호 확인 (선택적)
       let newHashedPassword = user.password;
-      if (password || passwordConfirmation) {
+      if (password && passwordConfirmation) { //둘 다 입력되어야 실행
         if (password !== passwordConfirmation) {
-          return res.status(400).json({ message: "비밀번호와 비밀번호 확인이 일치하지 않습니다." });
+          throw new Error("비밀번호와 비밀번호 확인이 일치하지 않습니다.");
         }
         newHashedPassword = await bcrypt.hash(password, 10);
       }
+
+
+      console.log("여기 5")
+
 
       // ✅ 정보 업데이트
       const updatedUser = await prisma.user.update({
         where: { id: userId },
         data: {
-          employeeNumber: employeeNumber ?? user.employeeNumber,
-          phoneNumber: phoneNumber ?? user.phoneNumber,
+          employeeNumber: employeeNumber ?? user.employeeNumber, //??는 앞에 있는 값이 없으면(=null 또는 undefined이면), 뒤의 값을 써라
+          phoneNumber: phoneNumber ?? user.phoneNumber,  // 앞에 새 번호 뒤에는 원래 있던 번호
           password: newHashedPassword,
           imageUrl: imageUrl ?? user.imageUrl,
         },
-        select: {
+        select: { //성공 값
           id: true,
           name: true,
           email: true,
@@ -206,7 +225,43 @@ patchMyInfo = async (req: Request, res: Response) => {
       return res.status(200).json(updatedUser);
     } catch (err) {
       console.error(err);
-      return res.status(500).json({ message: "서버 오류" });
+      throw new Error("서버 오류");
+    }
+  };
+
+ 
+
+
+  //회원 탈퇴 
+  deleteMyInfo = async (req: Request, res: Response) => {
+    try {
+      const userInfo = (req as any).user; // 토큰에서 id 추출
+      const userId = Number(userInfo.userId);
+      console.log("탈퇴 1");
+
+      // DB에서 해당 userId 유저 검색
+      const user = await prisma.user.findUnique({ where: { id: userId } });
+      if (!user) {
+        console.log("탈퇴 2: 유저 없음 ❌");
+        return res.status(404).json({ message: "존재하지 않는 유저입니다." });
+      }
+
+      console.log("탈퇴 2: 유저 확인 완료 → 삭제 시도");
+
+      //실제로 유저 삭제
+      await prisma.user.delete({ where: { id: userId } });
+
+      console.log("탈퇴 3: 유저 삭제 성공 ✅");
+
+      // 여기서 응답하고 끝
+      return res.status(200).json({ message: "회원 탈퇴 완료" });
+
+    } catch (error: any) {
+      console.error("❌ 탈퇴 중 Prisma 에러:", error.message);
+      return res.status(500).json({
+        message: "회원 탈퇴 중 오류가 발생했습니다.",
+        error: error.message, // 진짜 Prisma 오류 메시지를 반환
+      });
     }
   };
 
@@ -214,52 +269,40 @@ patchMyInfo = async (req: Request, res: Response) => {
 
 
 
+  //유저 삭제 
+  //   deleteUser = async(req: Request, res: Response) =>{
+  //     const userInfo = (req as any).user;
+  //     const userId = +userInfo.id;
 
+  //     let targetUserId = (req as any).params.userId;
+  //     targetUserId = +targetUserId;
+  //     if (typeof targetUserId != 'number'){
+  //       throw new Error("잘못된 요청입니다")
+  //     }
 
+  //     const targetUser = await prisma.user.findFirst({where: {
+  //       id:targetUserId
+  //     }})
+  //     if (!targetUser){
+  //       throw new Error("존재하지 않는 유저 입니다")
+  //     }
 
+  //     if (!userInfo.isAdmin){
+  //       throw new Error("관리자 권한이 필요합니다 ")
+  //     }
 
-
-
-
-
-//유저 탈퇴 
- deleteMyInfo = async(req: Request, res: Response) => {
-    const userInfo = (req as any).user; // 토큰에서 가져온 userId
-    const userId = userInfo.userId;
-
-      // DB에서 사용자 조회
-    const user = await prisma.user.findUnique({
-        where: { id: userId }
-      });
-    if (!user) {
-        throw new Error("잘못된 요청입니다");
-      }
-
-    try{
-      await prisma.user.delete({
-        where: {id: userId}
-      })
-      return 
-    }catch(error){
-      console.error(error)
-      throw new Error("데이터베이스 오류 발생")
-    }
-      
-
-
- }
-
+  //     try{
+  //       await prisma.user.delete({
+  //         where:{id:targetUserId}
+  //       })
+  //     }catch(error){
+  //       console.error(error);
+  //       throw new Error("데이터베이스 에러 발생")
+  //     }
+  //   }
 }
 
 
-
-
-
-
-
-export default userController;
-
-
-
+export default new userController();
 
 

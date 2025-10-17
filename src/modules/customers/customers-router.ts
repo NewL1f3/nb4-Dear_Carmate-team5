@@ -1,5 +1,6 @@
 import express from 'express';
-import customerController from './customer-controller';
+import customerController from './customers-controller';
+
 const customerRouter = express.Router();
 
 customerRouter.post('', customerController.postCustomer);
@@ -9,6 +10,6 @@ customerRouter.get('/:customerId', customerController.getOneCustomer);
 customerRouter.patch('/:customerId', customerController.patchCustomer);
 customerRouter.delete('/:customerId', customerController.deleteCustomer);
 
-customerRouter.post('/upload', customerController.uploadCustomer);
+customerRouter.post('/upload', customerController.uploadCustomers);
 
 export default customerRouter;

@@ -1,21 +1,6 @@
 import prisma from '../../lib/prisma';
-import type { Customer, Company, Prisma } from '@prisma/client';
 import { databaseCheckError } from '../../lib/errors';
-
-interface getManyInput {
-  searchBy: string;
-  limit: number;
-  skip: number;
-  keyword: string;
-}
-
-interface createData extends Customer {
-  company: any;
-}
-
-interface updatedData extends Prisma.CustomerUpdateInput {
-  company: any;
-}
+import { getManyRepoInput, createData, updatedData } from './customers-dto';
 
 class customerRepository {
   createCustomer = async (newData: createData) => {
@@ -31,7 +16,7 @@ class customerRepository {
     return newCustomer;
   };
 
-  getManyCustomers = async ({ searchBy, limit, skip, keyword }: getManyInput) => {
+  getManyCustomers = async ({ searchBy, limit, skip, keyword }: getManyRepoInput) => {
     let customers;
 
     //검색 기준에 따라 customer 찾기
@@ -100,6 +85,13 @@ class customerRepository {
     } catch (error) {
       throw databaseCheckError;
     }
+  };
+
+  createMany = async (rows: any[]) => {
+    return await prisma.customer.createMany({
+      data: rows,
+      skipDuplicates: true,
+    });
   };
 }
 

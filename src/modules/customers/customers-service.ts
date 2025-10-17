@@ -1,84 +1,21 @@
 import prisma from '../../lib/prisma';
 import { unauthorizedError, serverError, databaseCheckError, noCustomerError, badRequestError } from '../../lib/errors';
-import { AgeGroupEnum, GenderEnum, RegionEnum } from '@prisma/client';
+
+import customerRepository from './customers-repository';
+
 import { customerBodySchema, customerIdSchema, getManyCustomerSchema } from '../../lib/zod';
-import { number } from 'zod';
-import Busboy from 'busboy';
-import csv from 'csv-parser';
-import { Readable } from 'stream';
-import customerRepository from './customer-repository';
-
-interface responseFormat {
-  id: number;
-  name: string;
-  gender: GenderEnum;
-  phoneNumber: string;
-  ageGroup: string | null;
-  region: string | null;
-  email: string;
-  memo: string | null;
-  contractCount: number;
-}
-
-interface User {
-  id: number;
-  companyId: number;
-  name: string;
-  email: string;
-  employeeNumber: string;
-  phoneNumber: string;
-  imageUrl: string;
-  isAdmin: boolean;
-  password: string;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-interface customer {
-  id: number;
-  companyId: number;
-  name: string;
-  gender: GenderEnum;
-  phoneNumber: string;
-  ageGroup: string | null;
-  region: string | null;
-  email: string;
-  memo: string | null;
-  contractCount: number;
-  createdAt: Date;
-  updatedAt: Date;
-}
-
-interface postInput {
-  companyId: number;
-  data: any;
-}
-
-interface getManyInput {
-  page: string;
-  pageSize: string;
-  searchBy: string;
-  keyword: string;
-}
-
-interface patchInput {
-  data: patchMediumData;
-  customerId: number;
-  companyId: number;
-}
-
-interface patchMediumData {
-  name: string;
-  gender: string;
-  phoneNumber: string;
-  ageGroup: string | null;
-  region: string | null;
-  email: string;
-  memo: string;
-}
+import {
+  responseFormat,
+  User,
+  customer,
+  postServiceInput,
+  getManyServiceInput,
+  patchServiceInput,
+} from './customers-dto';
+import { AgeGroupEnum, GenderEnum, RegionEnum } from '@prisma/client';
 
 class customerService {
-  postCustomer = async function ({ companyId, data }: postInput) {
+  postCustomer = async function ({ companyId, data }: postServiceInput) {
     const bodyParsed = customerBodySchema.safeParse(data);
     if (!bodyParsed.success) {
       throw badRequestError;
@@ -105,7 +42,7 @@ class customerService {
     return newCustomer;
   };
 
-  getManyCustomer = async function ({ page, pageSize, searchBy, keyword }: getManyInput) {
+  getManyCustomer = async function ({ page, pageSize, searchBy, keyword }: getManyServiceInput) {
     //type 변환하기
     const pageNum: number = +page;
     const pageSizeNum: number = +pageSize;
@@ -149,7 +86,7 @@ class customerService {
     return returnData;
   };
 
-  patchCustomer = async function ({ data, customerId, companyId }: patchInput) {
+  patchCustomer = async function ({ data, customerId, companyId }: patchServiceInput) {
     let { ageGroup, region, gender, ...otherData } = data;
 
     //한글 영어로 변환
@@ -225,46 +162,26 @@ class customerService {
     return response;
   };
 
-  uploadCustomer = async function (req:Request) {
-    const busboy = Busboy({ headers: req.headers });
-    let result;
-    busboy.on('file', (fieldname: string, file: Readable, filename: string, encoding: string, mimetype: string) => {
-      if (mimetype !== 'text/csv') {
-        throw new Error('CSV 파일만 업로드할 수 있습니다.');
-      }
+  uploadCustomers = async function (rows: any[], companyId: number) {
+    const requiredFields = ['name', 'email'];
+    const formattedRows: any[] = [];
 
-      let rows: any[] = [];
-      file
-        .pipe(csv())
-        .on('data', (row) => {
-          rows.push({
-            name: row.name,
-            gender: row.gender || null,
-            phoneNumber: row.phoneNumber || null,
-            ageGroup: row.ageGroup || null,
-            region: row.region || null,
-            email: row.email || null,
-            memo: row.memo || null,
-          });
-        })
-        //여기부분 필수필드랑 아닌거 구분하기
-        .on('end', async () => {
-          console.log('CSV 파싱 완료, 총 행:', rows.length);
-          try {
-            const result = await prisma.customer.createMany({ data: rows });
-            
-            
-          } catch (err) {
-            console.error(err);
-            throw new Error('데이터 생성 오류');
-          }
-        });
-        
-    });
+    for (const [index, row] of rows.entries()) {
+      formattedRows.push({
+        name: row.name,
+        gender: row.gender || null,
+        phoneNumber: row.phoneNumber || null,
+        ageGroup: ageFormatting(row.ageGroup) || null,
+        region: regionKorToEng(row.region) || null,
+        email: row.email || null,
+        memo: row.memo || null,
+        companyId,
+      });
+    }
 
-    req.pipe(busboy);
-    return result;
-  };
+    await customerRepository.createMany(formattedRows);
+
+    return { message: '데이터 생성 완료', total: formattedRows.length };
   };
 }
 
@@ -377,3 +294,21 @@ function ageKorToEng(Kor: string | null) {
 }
 
 export default new customerService();
+
+function ageFormatting(ageGroup: string) {
+  const ageMap: Record<string, string> = {
+    '10-20': 'ten',
+    '20-30': 'twenty',
+    '30-40': 'thirty',
+    '40-50': 'forty',
+    '50-60': 'fifty',
+    '60-70': 'sixty',
+    '70-80': 'seventy',
+    '80-90': 'eighty',
+  };
+  let result = null;
+  if (ageGroup) {
+    result = ageMap[ageGroup];
+  }
+  return result;
+}

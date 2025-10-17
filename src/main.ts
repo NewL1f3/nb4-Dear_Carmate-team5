@@ -1,7 +1,10 @@
 import express from 'express';
-import customerRouter from '../modules/customer/customer-router';
+import customerRouter from './modules/customers/customers-router';
+import cors from 'cors';
 
 const app = express();
+
+app.use(cors());
 app.use(express.json());
 app.use('/customers', customerRouter);
 app.get('/dashboard');

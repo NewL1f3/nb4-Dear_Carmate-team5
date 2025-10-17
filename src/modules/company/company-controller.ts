@@ -28,11 +28,7 @@ class companyController{
  getcompanyUsers = async (req:AuthRequest , res:Response) => {
   try {
     const result = await CompaniesService.getCompanyUsers(req.query, req['user']);
-    return res.json({
-      currentPage: Number(req.query.page) ||1,
-      totalItemCount: result.totalItemCount,
-      data:result
-    });
+    return res.json(result);
   }catch(error){
     console.log(error)
     res.send(error)

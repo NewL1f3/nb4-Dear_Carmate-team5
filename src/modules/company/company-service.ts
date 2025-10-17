@@ -10,17 +10,21 @@ class CompanyService {
   async getCompanies(query: any, user: any) {
     if (!user?.isAdmin) throw { status: 401, message: '관리자 권한이 필요합니다' };
 
-    const pageNum = query.page || 1;
-    const pageSizeNum = query.pageSize || 8;
+    const page = query.page || '1';
+    const pageSize = query.pageSize || '10';
     const searchBy = query.searchBy;
     const keyword = query.keyword;
 
     const where: any = searchBy && keyword ? { [searchBy]: { contains: keyword } } : {};
+    const pageNum = +page
+    const pageSizeNum = +pageSize
+
     const skip = (pageNum - 1) * pageSizeNum;
     const take = pageSizeNum;
 
+
     const companies = await CompanyRepository.getManyCompany(where, skip, take);
-    const totalItemCount = await CompanyRepository.getCompanyCount(where);
+    const totalItemCount = await CompanyRepository.getCompanyCount();
 
     const formatCompanies = companies.map(formatResponse);
 
@@ -28,7 +32,7 @@ class CompanyService {
       currentPage: pageNum,
       totalPages: Math.ceil(totalItemCount / pageSizeNum),
       totalItemCount,
-      formatCompanies,
+      data: formatCompanies,
     };
   }
 

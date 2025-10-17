@@ -11,8 +11,8 @@ curl -X POST http://localhost:3001/companies \
 -H "Content-Type: application/json" \
 -H "Authorization: Bearer <ADMIN_TOKEN>" \
 -d '{
-  "companyName": "베스트 카 매니지먼트",
-  "companyCode": "BCM2025"
+  "companyName": "베스트 카 매니지먼",
+  "companyCode": "BCM202"
 }'
 
 ###

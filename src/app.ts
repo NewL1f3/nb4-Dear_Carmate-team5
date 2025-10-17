@@ -1,10 +1,18 @@
 import express from 'express';
 import companyRouter from './modules/company/company-router';
 import { userRouter } from './modules/users/users-router';
+import cors from 'cors';
 
 const app = express();
 
 app.use(express.json());
+
+app.use(
+  cors({
+    origin: 'http://localhost:3000',
+    credentials: true,
+  }),
+);
 
 // http://localhost:3000/companies 여기 주소로 요청이 오면 companyRouter를 실행시켜줘
 app.use('/users', userRouter);

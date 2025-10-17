@@ -2,16 +2,18 @@
 import { z } from 'zod';
 
 export const createCarSchema = z.object({
-    modelId: z.number().int().positive('모델 ID는 0보다 커야 합니다.'),
+    modelId: z.number().int().positive().optional(),
+    manufacturer: z.string().optional(),
+    model: z.string().optional(),
     carNumber: z.string().min(1, '차량 번호는 필수입니다.'),
     manufacturingYear: z
         .number()
         .int()
-        .min(1900, '제조년도는 1900년 이상이어야 합니다.')
-        .max(new Date().getFullYear() + 1, '유효한 제조년도가 아닙니다.'),
-    mileage: z.number().int().nonnegative('주행거리는 0 이상이어야 합니다.'),
-    price: z.number().int().nonnegative('가격은 0 이상이어야 합니다.'),
-    accidentCount: z.number().int().nonnegative('사고 횟수는 0 이상이어야 합니다.').default(0),
+        .min(1900)
+        .max(new Date().getFullYear() + 1),
+    mileage: z.number().int().nonnegative(),
+    price: z.number().int().nonnegative(),
+    accidentCount: z.number().int().nonnegative().default(0),
     explanation: z.string().optional(),
     accidentDetails: z.string().optional(),
 });

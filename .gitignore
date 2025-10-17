@@ -1,13 +1,11 @@
 node_modules
 # Keep environment variables out of version control
 .env
+*.pdf
+*.http
+
+seed.ts
 
 /generated/prisma
-
-/prisma/migrations
-
-/dist
-
-/src/dashboard
-
-/nb4-Dear_Carmate-team5-front
+prisma/migrations
+dist/

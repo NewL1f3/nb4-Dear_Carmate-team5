@@ -72,8 +72,13 @@ export class CarController {
             if (isNaN(carId)) {
                 return res.status(400).json({ message: '유효한 ID가 아닙니다.' });
             }
+
+            if (!req.user || !req.user.companyId) {
+                return res.status(401).json({ message: '인증 정보가 유효하지 않습니다.' });
+            }
+
             const validatedData = updateCarSchema.parse(req.body);
-            const updatedCar = await this.carService.updateCar(carId, validatedData);
+            const updatedCar = await this.carService.updateCar(carId, req.user.companyId, validatedData);
             res.status(200).json(updatedCar);
         } catch (error) {
             next(error);
@@ -86,12 +91,18 @@ export class CarController {
             if (isNaN(carId)) {
                 return res.status(400).json({ message: '유효한 ID가 아닙니다.' });
             }
-            const result = await this.carService.deleteCar(carId);
+
+            if (!req.user || !req.user.companyId) {
+                return res.status(401).json({ message: '인증 정보가 유효하지 않습니다.' });
+            }
+
+            const result = await this.carService.deleteCar(carId, req.user.companyId);
             res.status(200).json(result);
         } catch (error) {
             next(error);
         }
     };
+
 
     public getCarModels = async (_req: Request, res: Response, next: NextFunction) => {
         try {

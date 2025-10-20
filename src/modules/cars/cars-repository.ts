@@ -50,7 +50,6 @@ export class CarRepository {
             prisma.car.count({ where }),
         ]);
 
-        // ✅ 프론트엔드 형식에 맞게 변환
         const formattedCars = cars.map(car => ({
             id: car.id,
             carNumber: car.carNumber,
@@ -88,9 +87,9 @@ export class CarRepository {
 
         if (!car) return null;
 
-        // ✅ 프론트엔드 형식에 맞게 변환
         return {
             id: car.id,
+            companyId: car.companyId,
             carNumber: car.carNumber,
             manufacturer: car.model.manufacturer.name,
             model: car.model.modelName,
@@ -117,7 +116,6 @@ export class CarRepository {
             },
         });
 
-        // ✅ 프론트엔드 형식에 맞게 변환
         return {
             id: car.id,
             carNumber: car.carNumber,
@@ -147,7 +145,6 @@ export class CarRepository {
             },
         });
 
-        // ✅ 프론트엔드 형식에 맞게 변환
         return {
             id: car.id,
             carNumber: car.carNumber,
@@ -216,5 +213,4 @@ export class CarRepository {
             },
         });
     };
-
 }

@@ -1,5 +1,5 @@
 // src/modules/cars/cars-service.ts
-import { CarStatusEnum, Prisma } from '@prisma/client';
+import { CarStatusEnum } from '@prisma/client';
 import { CarRepository } from './cars-repository';
 import { CreateCarDto, UpdateCarDto } from './cars-dto';
 
@@ -25,12 +25,10 @@ export class CarService {
         return car;
     };
 
-
     public createCar = async (
         companyId: number,
         carData: CreateCarDto
     ) => {
-
         const existingCar = await this.carRepository.findByCarNumber(
             companyId,
             carData.carNumber
@@ -74,9 +72,17 @@ export class CarService {
         });
     };
 
+    public updateCar = async (id: number, companyId: number, carData: UpdateCarDto) => {
+        const existingCar = await this.carRepository.findById(id);
 
+        if (!existingCar) {
+            throw new Error('차량을 찾을 수 없습니다.');
+        }
 
-    public updateCar = async (id: number, carData: UpdateCarDto) => {
+        if (existingCar.companyId !== companyId) {
+            throw new Error('해당 차량에 대한 권한이 없습니다.');
+        }
+
         const { manufacturer, model, ...updateData } = carData;
 
         if (!updateData.modelId && manufacturer && model) {
@@ -95,12 +101,17 @@ export class CarService {
         return await this.carRepository.update(id, updateData);
     };
 
-
-    public deleteCar = async (id: number) => {
+    public deleteCar = async (id: number, companyId: number) => {
         const existingCar = await this.carRepository.findById(id);
+
         if (!existingCar) {
             throw new Error('차량을 찾을 수 없습니다.');
         }
+
+        if (existingCar.companyId !== companyId) {
+            throw new Error('해당 차량에 대한 권한이 없습니다.');
+        }
+
         await this.carRepository.delete(id);
         return { message: '차량이 삭제되었습니다.' };
     };

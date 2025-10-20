@@ -1,7 +1,17 @@
 import { contractRepository } from './contracts-repository';
-import { Prisma, ContractStatusEnum, Contract, Meeting, User } from '@prisma/client';
+import type { Prisma } from '@prisma/client';
 import { formatContract } from '../../utils/formatContract';
-import { contractResponseSchema, ContractResponse, CreateContractDto, createContractSchema, updateContractSchema, UpdateContractDto } from './contracts-dto';
+import {
+  contractResponseSchema,
+  ContractResponse,
+  CreateContractDto,
+  createContractSchema,
+  updateContractSchema,
+  UpdateContractDto,
+} from './contracts-dto';
+import type { LinkContractData } from './contracts-dto';
+import { sendContractEmail } from '../../lib/email-service';
+import { createDownloadUrl } from '../../lib/cloudinary-service';
 
 export const contractService = {
   async createContract(user: Express.User, body: CreateContractDto): Promise<ContractResponse> {
@@ -121,4 +131,70 @@ export const contractService = {
       data: `${u.name} (${u.email})`,
     }));
   },
+};
+
+// 계약과 게약서 관계 연결
+export const linkContractService = async (id: number, userId: number, contractDocuments: LinkContractData[]) => {
+  // 계약 존재 및 인가 확인
+  const contractFind = await contractRepository.findContractById(id);
+  if (!contractFind) throw new Error('계약을 찾을 수 없습니다.');
+  if (contractFind.userId !== userId) throw new Error('계약을 수정할 권한이 없습니다.');
+
+  // contractDocumentId 추출
+  const documentIds = contractDocuments.map((document) => ({ id: document.id }));
+
+  const updateData: Prisma.ContractUpdateInput = {
+    contractDocuments: {
+      set: documentIds,
+    },
+    documentCount: documentIds.length,
+  };
+
+  const contract = await contractRepository.updateContract(id, updateData);
+
+  // 고객의 이메일이 있을때 계약서 첨부 후 메일 발송
+  if (contract.customer.email) {
+    const documents = contract.contractDocuments;
+    const toName = contract.customer.name;
+    const toEmail = contract.customer.email;
+
+    // 이메일 첨부를 위한 AttachmentInfo 배열
+    const attachmentsData: { fileName: string; fileUrl: string; contentType: string }[] = [];
+
+    for (const document of documents) {
+      // Cloudinary URL 생성
+      const downloadUrl = createDownloadUrl(document.publicId);
+      attachmentsData.push({
+        fileName: document.fileName,
+        fileUrl: downloadUrl,
+        contentType: 'application/pdf',
+      });
+    }
+
+    // 고객 메일로 계약서 첨부 이메일 발송
+    await sendContractEmail(toName, toEmail, attachmentsData);
+  }
+
+  // 데이터 가공
+  const contractData = {
+    id: contract.id,
+    status: contract.status,
+    resolutionDate: contract.resolutionDate,
+    contractPrice: contract.contractPrice,
+    meetings: contract.meetings,
+    user: {
+      id: contract.user.id,
+      name: contract.user.name,
+    },
+    customer: {
+      id: contract.customer.id,
+      name: contract.customer.name,
+    },
+    car: {
+      id: contract.car.id,
+      model: contract.car.model.modelName,
+    },
+  };
+
+  return contractData;
 };

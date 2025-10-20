@@ -71,17 +71,17 @@ enum CarModelTypeEnum {
 }
 
 model Company {
-  id          Int    @id @default(autoincrement())
-  companyName String @unique @db.VarChar(100)
-  companyCode String @unique @db.VarChar(50)
-  userCount   Int    @default(0)
-
-  createdAt DateTime   @default(now())
-  updatedAt DateTime   @updatedAt
-  users     User[]
-  customers Customer[]
-  cars      Car[]
-  Contract  Contract[]
+  id          Int      @id @default(autoincrement())
+  companyName String   @unique @db.VarChar(100)
+  companyCode String   @unique @db.VarChar(50)
+  userCount   Int      @default(0)
+  
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  users       User[]
+  customers   Customer[]
+  cars        Car[]
+  contracts   Contract[]
 }
 
 model User {
@@ -169,6 +169,7 @@ model Car {
   @@unique([companyId, carNumber])
 }
 
+
 model Contract {
   id              Int                @id @default(autoincrement())
   userId          Int
@@ -183,8 +184,8 @@ model Contract {
   createdAt       DateTime           @default(now())
   updatedAt       DateTime           @updatedAt
 
-  user            User               @relation(fields: [userId], references: [id])
   company         Company            @relation(fields: [companyId], references: [id])
+  user            User               @relation(fields: [userId], references: [id])
   customer        Customer           @relation(fields: [customerId], references: [id], onDelete: Cascade)
   car             Car                @relation(fields: [carId], references: [id], onDelete: Cascade)
   meetings        Meeting[]

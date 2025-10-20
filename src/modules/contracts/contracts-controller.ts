@@ -1,5 +1,6 @@
-import { Request, Response } from 'express';
-import { contractService } from './contracts-service';
+import type { Request, Response } from 'express';
+import { contractService, linkContractService } from './contracts-service';
+import { patchContractSchema } from './contracts-dto';
 
 export const contractController = {
   async create(req: Request, res: Response) {
@@ -29,9 +30,21 @@ export const contractController = {
 
   async update(req: Request, res: Response) {
     if (!req.user) return res.status(401).json({ message: 'Unauthorized' });
+    const userId = req.user.id;
 
     const contractId = Number(req.params.id);
     try {
+      // 분기 지점: req.body 안에 contractDocuments 값이 있을 경우
+      if (req.body?.contractDocuments?.length) {
+        // 유효성 검사, 나중에 라우터로 위치 옮기면 좋음
+        const parsed = patchContractSchema.parse(req.body);
+        const { contractDocuments } = parsed;
+
+        // 계약과 게약서 관계 연결
+        const contractData = await linkContractService(contractId, userId, contractDocuments);
+        return res.status(200).json(contractData);
+      }
+
       const updatedContract = await contractService.updateContract(contractId, req.body);
       res.status(200).json(updatedContract);
     } catch (err: any) {

@@ -36,8 +36,6 @@ export const sendContractEmail = async (
   try {
     const fromEmail = process.env.SMTP_USER;
 
-    console.log('finalAttachments:', attachmentsData);
-
     const info = await transporter.sendMail({
       // 발신자 주소
       from: fromEmail,

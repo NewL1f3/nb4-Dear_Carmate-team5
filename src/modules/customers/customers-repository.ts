@@ -16,7 +16,7 @@ class customerRepository {
     return newCustomer;
   };
 
-  getManyCustomers = async ({ searchBy, limit, skip, keyword }: getManyRepoInput) => {
+  getManyCustomers = async ({ searchBy, limit, skip, keyword, companyId }: getManyRepoInput) => {
     let customers;
 
     //검색 기준에 따라 customer 찾기
@@ -25,21 +25,29 @@ class customerRepository {
         take: limit,
         skip,
         where: {
+          companyId,
           name: {
             contains: keyword,
           },
         },
       });
-    }
-
-    if (searchBy == 'email') {
+    } else if (searchBy == 'email') {
       customers = await prisma.customer.findMany({
         take: limit,
         skip,
         where: {
+          companyId,
           email: {
             contains: keyword,
           },
+        },
+      });
+    } else {
+      customers = await prisma.customer.findMany({
+        take: limit,
+        skip,
+        where: {
+          companyId,
         },
       });
     }
@@ -52,7 +60,7 @@ class customerRepository {
     return customerCount;
   };
 
-  updatedCustomers = async (updateInputData: updatedData, customerId: number) => {
+  updateCustomers = async (updateInputData: updatedData, customerId: number) => {
     let patchCustomer;
     try {
       patchCustomer = await prisma.customer.update({

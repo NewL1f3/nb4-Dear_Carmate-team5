@@ -3,7 +3,7 @@ import { unauthorizedError, serverError, databaseCheckError, noCustomerError, ba
 
 import customerRepository from './customers-repository';
 
-import { customerBodySchema, customerIdSchema, getManyCustomerSchema } from '../../lib/zod';
+import { customerBodySchema, customerIdSchema, getManyCustomerSchema } from './customers-dto';
 import {
   responseFormat,
   User,
@@ -42,7 +42,7 @@ class customerService {
     return newCustomer;
   };
 
-  getManyCustomer = async function ({ page, pageSize, searchBy, keyword }: getManyServiceInput) {
+  getManyCustomer = async function ({ page, pageSize, searchBy, keyword, companyId }: getManyServiceInput) {
     //type 변환하기
     const pageNum: number = +page;
     const pageSizeNum: number = +pageSize;
@@ -58,7 +58,7 @@ class customerService {
     const limit = pageSizeNum;
     const skip = pageSizeNum * (pageNum - 1);
 
-    const customers = await customerRepository.getManyCustomers({ limit, skip, keyword, searchBy });
+    const customers = await customerRepository.getManyCustomers({ limit, skip, keyword, searchBy, companyId });
 
     //프론트에서 요구하는 값 구하기
     const customerCount = await customerRepository.countCustomers();
@@ -98,16 +98,7 @@ class customerService {
     }
 
     //customer가 없을 시 에러 발생
-    try {
-      const customer = await prisma.customer.findFirst({
-        where: { id: customerId },
-      });
-      if (!customer) {
-        throw noCustomerError;
-      }
-    } catch (error) {
-      throw databaseCheckError;
-    }
+    checkCustomerExist(customerId);
 
     // 유효성 검사
     const bodyParsed = customerBodySchema.safeParse(data);
@@ -126,7 +117,7 @@ class customerService {
       },
     };
 
-    const patchCustomer = await customerRepository.updatedCustomers(newData, customerId);
+    const patchCustomer = await customerRepository.updateCustomers(newData, customerId);
     //front에 맞게 formatting
     const response = responseFomatiing(patchCustomer);
     return response;
@@ -134,10 +125,7 @@ class customerService {
 
   deleteCustomer = async function (customerId: number) {
     //customer 존재 확인
-    const customer = await customerRepository.findCustomer(customerId);
-    if (!customer) {
-      throw noCustomerError;
-    }
+    checkCustomerExist(customerId);
 
     //customer 삭제
     await customerRepository.deleteCustomer(customerId);
@@ -145,12 +133,10 @@ class customerService {
 
   getOneCustomer = async function (customerId: number) {
     let customer;
-    //customer 있는지 확인
+    //customer 있는지 확인 및 가져오기
 
     try {
-      customer = await prisma.customer.findFirst({
-        where: { id: customerId },
-      });
+      customer = await customerRepository.findCustomer(customerId);
       if (!customer) {
         throw noCustomerError;
       }
@@ -311,4 +297,15 @@ function ageFormatting(ageGroup: string) {
     result = ageMap[ageGroup];
   }
   return result;
+}
+
+async function checkCustomerExist(customerId: number) {
+  try {
+    const customer = await customerRepository.findCustomer(customerId);
+    if (!customer) {
+      throw noCustomerError;
+    }
+  } catch (error) {
+    throw databaseCheckError;
+  }
 }

@@ -6,6 +6,7 @@ import cors from 'cors';
 import { contractDocumentRouter } from './modules/contract-documents/contract-documents-route';
 import { v2 as cloudinary } from 'cloudinary';
 import { startCleanupJob } from './lib/cron-jobs';
+import customerRouter from './modules/customers/customers-router';
 
 dotenv.config();
 
@@ -33,6 +34,7 @@ cloudinary.config({
 
 app.use('/uploads', express.static('uploads'));
 app.use('/contractDocuments', contractDocumentRouter);
+app.use('/customers', customerRouter);
 
 // Cron Job 활성화
 startCleanupJob();

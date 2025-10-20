@@ -45,9 +45,11 @@ export class customerController {
       throw unauthorizedError;
     }
 
+    const companyId = +user.companyId;
+
     let { page = '1', pageSize = '8', searchBy = 'name', keyword = '' } = req.query as unknown as CustomerSearchParams;
 
-    const returnData = await customerService.getManyCustomer({ page, pageSize, searchBy, keyword });
+    const returnData = await customerService.getManyCustomer({ page, pageSize, searchBy, keyword, companyId });
 
     return res.status(200).send(returnData);
   };
@@ -58,7 +60,7 @@ export class customerController {
 
     // 테스트용 유저 코드
     const user = await prisma.user.findUnique({
-      where: { id: 2 },
+      where: { id: 1 },
     });
 
     //user가 없을 시 에러 발생
@@ -89,7 +91,7 @@ export class customerController {
 
     // 테스트용 유저 코드
     const user = await prisma.user.findUnique({
-      where: { id: 2 },
+      where: { id: 1 },
     });
     if (!user) {
       throw unauthorizedError;
@@ -111,7 +113,7 @@ export class customerController {
 
     // 테스트용 유저 코드
     const user = await prisma.user.findUnique({
-      where: { id: 2 },
+      where: { id: 1 },
     });
 
     if (!user) {
@@ -125,7 +127,7 @@ export class customerController {
   uploadCustomers = async function (req: Request, res: Response, next: NextFunction) {
     // const user = req.user;
     const user = await prisma.user.findUnique({
-      where: { id: 2 },
+      where: { id: 1 },
     });
 
     if (!user) {

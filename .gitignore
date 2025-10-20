@@ -3,9 +3,10 @@ node_modules
 .env
 *.pdf
 *.http
+*.png
 
 seed.ts
 
 /generated/prisma
-prisma/migrations
+prisma/migrations/
 dist/

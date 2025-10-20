@@ -10,6 +10,7 @@ import { Readable } from 'stream';
 import customerService from './customers-service';
 
 import { CustomerSearchParams } from './customers-dto';
+import companyController from '../company/company-controller';
 
 export class customerController {
   postCustomer = async function (req: Request, res: Response, next: NextFunction) {
@@ -76,7 +77,8 @@ export class customerController {
       throw badRequestError;
     }
 
-    const response = await customerService.patchCustomer({ data, customerId, companyId });
+    const userId = +user.id;
+    const response = await customerService.patchCustomer({ data, customerId, companyId, userId });
     return res.status(200).send(response);
   };
 
@@ -96,8 +98,9 @@ export class customerController {
     if (!user) {
       throw unauthorizedError;
     }
+    const userId = +user.id;
 
-    await customerService.deleteCustomer(customerId);
+    await customerService.deleteCustomer(customerId, userId);
 
     return res.status(204).send({ message: `고객 삭제 성공` });
   };
@@ -119,8 +122,9 @@ export class customerController {
     if (!user) {
       throw unauthorizedError;
     }
+    const userId = +user.id;
 
-    const response = await customerService.getOneCustomer(customerId);
+    const response = await customerService.getOneCustomer(customerId, userId);
     return res.status(200).send(response);
   };
 

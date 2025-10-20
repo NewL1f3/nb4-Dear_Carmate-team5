@@ -1,6 +1,7 @@
 import prisma from '../../lib/prisma';
 import { databaseCheckError } from '../../lib/errors';
 import { getManyRepoInput, createData, updatedData } from './customers-dto';
+import { Prisma } from '@prisma/client';
 
 class customerRepository {
   createCustomer = async (newData: createData) => {
@@ -16,47 +17,21 @@ class customerRepository {
     return newCustomer;
   };
 
-  getManyCustomers = async ({ searchBy, limit, skip, keyword, companyId }: getManyRepoInput) => {
+  getManyCustomers = async ({ where, limit, skip, companyId }: getManyRepoInput) => {
     let customers;
 
     //검색 기준에 따라 customer 찾기
-    if (searchBy == 'name') {
-      customers = await prisma.customer.findMany({
-        take: limit,
-        skip,
-        where: {
-          companyId,
-          name: {
-            contains: keyword,
-          },
-        },
-      });
-    } else if (searchBy == 'email') {
-      customers = await prisma.customer.findMany({
-        take: limit,
-        skip,
-        where: {
-          companyId,
-          email: {
-            contains: keyword,
-          },
-        },
-      });
-    } else {
-      customers = await prisma.customer.findMany({
-        take: limit,
-        skip,
-        where: {
-          companyId,
-        },
-      });
-    }
+    customers = await prisma.customer.findMany({
+      take: limit,
+      skip,
+      where,
+    });
 
     return customers;
   };
 
-  countCustomers = async () => {
-    const customerCount = await prisma.customer.count({});
+  countCustomers = async (where: any) => {
+    const customerCount = await prisma.customer.count({ where });
     return customerCount;
   };
 

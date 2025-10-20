@@ -94,6 +94,7 @@ export interface patchServiceInput {
   data: patchServiceMediumData;
   customerId: number;
   companyId: number;
+  userId: number;
 }
 
 export interface patchServiceMediumData {
@@ -108,10 +109,9 @@ export interface patchServiceMediumData {
 
 //repository에서 사용
 export interface getManyRepoInput {
-  searchBy: string;
+  where: any;
   limit: number;
   skip: number;
-  keyword: string;
   companyId: number;
 }
 

@@ -1,4 +1,5 @@
 import prisma from '../../lib/prisma';
+import { Prisma } from '@prisma/client';
 import { unauthorizedError, serverError, databaseCheckError, noCustomerError, badRequestError } from '../../lib/errors';
 
 import customerRepository from './customers-repository';
@@ -58,10 +59,25 @@ class customerService {
     const limit = pageSizeNum;
     const skip = pageSizeNum * (pageNum - 1);
 
-    const customers = await customerRepository.getManyCustomers({ limit, skip, keyword, searchBy, companyId });
+    let where: Prisma.CustomerWhereInput = { companyId };
+
+    switch (searchBy) {
+      case 'name':
+        where.name = {
+          contains: keyword,
+        };
+        break;
+      case 'email':
+        where.email = {
+          contains: keyword,
+        };
+        break;
+    }
+
+    const customers = await customerRepository.getManyCustomers({ where, skip, limit, companyId });
 
     //프론트에서 요구하는 값 구하기
-    const customerCount = await customerRepository.countCustomers();
+    const customerCount = await customerRepository.countCustomers(where);
 
     const currentPage = page;
     const totalPages = Math.floor(customerCount / pageSizeNum) + 1;
@@ -86,7 +102,7 @@ class customerService {
     return returnData;
   };
 
-  patchCustomer = async function ({ data, customerId, companyId }: patchServiceInput) {
+  patchCustomer = async function ({ data, customerId, companyId, userId }: patchServiceInput) {
     let { ageGroup, region, gender, ...otherData } = data;
 
     //한글 영어로 변환
@@ -98,7 +114,7 @@ class customerService {
     }
 
     //customer가 없을 시 에러 발생
-    checkCustomerExist(customerId);
+    checkAuthority(customerId, userId);
 
     // 유효성 검사
     const bodyParsed = customerBodySchema.safeParse(data);
@@ -123,22 +139,24 @@ class customerService {
     return response;
   };
 
-  deleteCustomer = async function (customerId: number) {
-    //customer 존재 확인
-    checkCustomerExist(customerId);
+  deleteCustomer = async function (customerId: number, userId: number) {
+    //인가 과정
+    checkAuthority(customerId, userId);
 
     //customer 삭제
     await customerRepository.deleteCustomer(customerId);
   };
 
-  getOneCustomer = async function (customerId: number) {
+  getOneCustomer = async function (customerId: number, userId: number) {
     let customer;
-    //customer 있는지 확인 및 가져오기
+    //customer 있는지 확인 및 가져오기, 고객과 유저의 회사가 같은지 인가
 
     try {
       customer = await customerRepository.findCustomer(customerId);
       if (!customer) {
         throw noCustomerError;
+      } else if (userId != customer.companyId) {
+        throw new Error('관리할 수 없는 고객입니다');
       }
     } catch (error) {
       throw databaseCheckError;
@@ -304,6 +322,20 @@ async function checkCustomerExist(customerId: number) {
     const customer = await customerRepository.findCustomer(customerId);
     if (!customer) {
       throw noCustomerError;
+    }
+  } catch (error) {
+    throw databaseCheckError;
+  }
+}
+
+async function checkAuthority(customerId: number, userId: number) {
+  let customer;
+  try {
+    customer = await customerRepository.findCustomer(customerId);
+    if (!customer) {
+      throw noCustomerError;
+    } else if (userId != customer.companyId) {
+      throw new Error('관리할 수 없는 고객입니다');
     }
   } catch (error) {
     throw databaseCheckError;

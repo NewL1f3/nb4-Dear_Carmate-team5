@@ -2,6 +2,7 @@ import express from 'express';
 import dotenv from 'dotenv';
 import { contractRouter } from './modules/contracts/contracts-router';
 import { userRouter } from './modules/users/users-router'; // 임시
+import companyRouter from './modules/company/company-router';
 import cors from 'cors';
 import { contractDocumentRouter } from './modules/contract-documents/contract-documents-route';
 import { v2 as cloudinary } from 'cloudinary';
@@ -24,6 +25,7 @@ app.use(express.json());
 // Contract 라우터 등록
 app.use('/users', userRouter);
 app.use('/contracts', contractRouter);
+app.use('/companies', companyRouter);
 // Cloudinary 환경 설정
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,

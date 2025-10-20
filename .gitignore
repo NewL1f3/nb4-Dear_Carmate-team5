@@ -9,3 +9,5 @@ seed.ts
 /generated/prisma
 prisma/migrations
 dist/
+
+test.http

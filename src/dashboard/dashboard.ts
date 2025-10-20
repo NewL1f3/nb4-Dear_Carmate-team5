@@ -2,8 +2,9 @@ import prisma from '../lib/prisma.js';
 import { unauthorizedError, serverError, databaseCheckError, noCustomerError, badRequestError } from '../lib/errors';
 import { Request, Response, NextFunction } from 'express';
 //controller
+
 // 전체적으로 company 로직 추가
-async function getDashboard(req: Request, res: Response, next: NextFunction) {
+export async function getDashboard(req: Request, res: Response, next: NextFunction) {
   const user = req.user;
   if (!user) {
     throw unauthorizedError;

@@ -31,7 +31,7 @@ cloudinary.config({
 
 app.use('/uploads', express.static('uploads'));
 app.use('/users', userRouter);
-app.use('/users', companyRouter);
+app.use('/companies', companyRouter);
 app.use('/contracts', contractRouter);
 app.use('/contractDocuments', contractDocumentRouter);
 

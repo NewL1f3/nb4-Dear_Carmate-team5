@@ -1,14 +1,16 @@
 import express, { Request, Response, NextFunction } from 'express';
 import dotenv from 'dotenv';
+import cors from 'cors';
+import cookieParser from 'cookie-parser';
+import { v2 as cloudinary } from 'cloudinary';
+
 import companyRouter from './modules/company/company-router';
 import { contractRouter } from './modules/contracts/contracts-router';
-import { userRouter } from './modules/users/users-router'; // 임시
-import cors from 'cors';
+import { userRouter } from './modules/users/users-router'; //임시
 import { contractDocumentRouter } from './modules/contract-documents/contract-documents-route';
-import { v2 as cloudinary } from 'cloudinary';
-import { startCleanupJob } from './lib/cron-jobs';
 import customerRouter from './modules/customers/customers-router';
 import carRouter from './modules/cars/cars-router';
+import { startCleanupJob } from './lib/cron-jobs';
 
 dotenv.config();
 
@@ -23,7 +25,6 @@ app.use(
 );
 
 app.use(express.json());
-app.use(cookieParser());
 
 // Contract 라우터 등록
 app.use('/users', userRouter);
@@ -42,11 +43,8 @@ app.use('/api/contracts', contractRouter);
 app.use('/api/contractDocuments', contractDocumentRouter);
 app.use('/api/cars', carRouter);
 app.use('/uploads', express.static('uploads'));
-app.use('/contractDocuments', contractDocumentRouter);
 
 // Cron Job 활성화
 startCleanupJob();
 
-app.listen(PORT, () => {
-    console.log(`🚀 Server running on http://localhost:${PORT}`);
-});
+app.listen(process.env.PORT || 3001, () => console.log('서버 시작'));

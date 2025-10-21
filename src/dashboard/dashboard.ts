@@ -27,7 +27,7 @@ export async function getDashboard(req: Request, res: Response, next: NextFuncti
   // 이달의 매출
   const now = new Date();
   const thisMonthStartDay = new Date(now.getFullYear(), now.getMonth(), 1);
-  const monthlySales: any = await prisma.contract.aggregate({
+  const monthlySalesMedium: any = await prisma.contract.aggregate({
     _sum: {
       contractPrice: true,
     },
@@ -38,10 +38,11 @@ export async function getDashboard(req: Request, res: Response, next: NextFuncti
       },
     },
   });
+  const monthlySales: number = monthlySalesMedium._sum.contractPrice;
 
   // 저번달 매출
   const lastMonthStartDay = new Date(now.getFullYear(), now.getMonth() - 1, 1);
-  const lastMonthSales: any = await prisma.contract.aggregate({
+  const lastMonthSalesMedium: any = await prisma.contract.aggregate({
     _sum: {
       contractPrice: true,
     },
@@ -53,6 +54,7 @@ export async function getDashboard(req: Request, res: Response, next: NextFuncti
       },
     },
   });
+  const lastMonthSales: number = lastMonthSalesMedium._sum.contractPrice ? lastMonthSalesMedium._sum.contractPrice : 0;
 
   // 이번달 매출 상승률
   const growthRate = (100 * monthlySales) / lastMonthSales;
@@ -84,6 +86,7 @@ export async function getDashboard(req: Request, res: Response, next: NextFuncti
   // });
 
   const cars = await prisma.car.findMany({
+    where: { companyId },
     select: {
       id: true,
       model: {
@@ -126,23 +129,41 @@ export async function getDashboard(req: Request, res: Response, next: NextFuncti
   console.log(contractsByCarType);
 
   // 차량타입별 매출액
-  const salesByCarType = 1;
-  const cars2 = await prisma.car.findMany({
-    select: {
-      id: true,
-      model: {
-        select: {
-          type: true,
-        },
-      },
-      _count: {
-        select: {
-          contracts: true, // 각 Car별 계약 수
-        },
-      },
+  const carPriceByModelId = await prisma.car.groupBy({
+    by: ['modelId'],
+    _sum: {
+      price: true,
     },
+    where: { companyId },
   });
+  console.log(carPriceByModelId);
 
+  const salesByCarTypeMedium = await Promise.all(
+    carPriceByModelId.map(async (item) => {
+      const model = await prisma.model.findUnique({
+        where: { id: item.modelId },
+        select: { type: true },
+      });
+      return {
+        carType: model?.type,
+        count: item._sum.price ?? 0,
+      };
+    }),
+  );
+
+  const salesByCarType = Object.values(
+    salesByCarTypeMedium.reduce(
+      (acc, cur) => {
+        if (!cur.carType) return acc;
+        if (!acc[cur.carType]) acc[cur.carType] = { carType: cur.carType, count: 0 };
+        acc[cur.carType].count += cur.count;
+        return acc;
+      },
+      {} as Record<string, { carType: string; count: number }>,
+    ),
+  );
+
+  console.log(salesByCarType);
   /*  
 결과:
   {
@@ -162,16 +183,15 @@ export async function getDashboard(req: Request, res: Response, next: NextFuncti
             "count": 10000000
         }
   */
-  // const result = {
-  //   monthlySales,
-  //   lastMonthSales,
-  //   growthRate,
-  //   proceedingContrastCount,
-  //   completedContrastCount,
-  //   contractsByCarType,
-  //   salesByCarType,
-  // };
+  const result = {
+    monthlySales,
+    lastMonthSales,
+    growthRate,
+    proceedingContrastCount,
+    completedContrastCount,
+    contractsByCarType,
+    salesByCarType,
+  };
 
-  // return res.status(200).send(result);
-  return res.send('1');
+  return res.status(200).send(result);
 }

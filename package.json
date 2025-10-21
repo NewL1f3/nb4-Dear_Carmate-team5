@@ -1,9 +1,17 @@
 {
   "name": "nb04-dearcarmate-team5",
   "version": "1.0.0",
-  "main": "main.js",
+  "prisma": {
+    "seed": "ts-node prisma/seed.ts"
+  },
+  "description": "",
+  "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "format": "prettier --write .",
+    "dev": "ts-node src/app.ts",
+    "start": "node dist/app.js",
+    "build": "tsc"
   },
   "keywords": [],
   "author": "",
@@ -11,21 +19,32 @@
   "description": "",
   "dependencies": {
     "@prisma/client": "^6.16.2",
+    "axios": "^1.12.2",
     "bcrypt": "^6.0.0",
+    "busboy": "^1.6.0",
+    "cloudinary": "^2.7.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
+    "csv-parser": "^3.2.0",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
+    "multer": "^2.0.2",
+    "node-cron": "^4.2.1",
+    "nodemailer": "^7.0.9",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "passport-local": "^1.0.0",
-    "prisma": "^6.16.2",
-    "zod": "^4.1.11"
+    "zod": "^4.1.12"
   },
   "devDependencies": {
-    "@types/cors": "^2.8.19",
     "@types/express": "^5.0.3",
     "prettier": "^3.6.2",
+    "@types/busboy": "^1.5.4",
+    "@types/cors": "^2.8.19",
+    "@types/multer": "^2.0.0",
+    "@types/node": "^24.6.2",
+    "@types/nodemailer": "^7.0.2",
+    "ts-node": "^10.9.2",
     "typescript": "^5.9.3"
   }
 }

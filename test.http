@@ -1,0 +1,58 @@
+curl -X GET "http://localhost:3001/companies/users?page=1&pageSize=10" \
+-H "Authorization: Bearer <ADMIN_JWT_TOKEN>" \
+-H "Content-Type: application/json"
+
+###
+curl -X GET "http://localhost:3001/companies" \
+-H "Authorization: Bearer <ADMIN_JWT_TOKEN>"
+
+###
+curl -X POST http://localhost:3001/companies \
+-H "Content-Type: application/json" \
+-H "Authorization: Bearer <ADMIN_TOKEN>" \
+-d '{
+  "companyName": "베스트 카 매니지먼",
+  "companyCode": "BCM202"
+}'
+
+###
+curl -X PATCH http://localhost:3001/companies/1 \
+-H "Content-Type: application/json" \
+-H "Authorization: Bearer <ADMIN_TOKEN>" \
+-d '{
+  "companyName": "베스트 카 매니지먼트 리뉴얼",
+  "companyCode": "BCM-NEW"
+}'
+
+###
+curl -X DELETE http://localhost:3001/companies/1 \
+-H "Authorization: Bearer <ADMIN_TOKEN>"
+ ### GET CONTRACT
+ GET http://localhost:3001/contracts
+
+
+### GET CARS
+ GET http://localhost:3001/contracts/cars
+
+### GET USERS
+ GET http://localhost:3001/users/me
+
+### GET CUSTOMERS
+ GET http://localhost:3001/contracts/customers
+
+###
+curl -X POST http://localhost:3001/contracts \
+  -H "Content-Type: application/json" \
+  -d '{
+    "carId": 1,
+    "customerId": 1,
+    "meetings": [
+      {
+        "date": "2025-10-17T10:00:00.000Z",
+        "alarms": [
+          "2025-10-15T09:00:00.000Z",
+          "2025-10-15T10:00:00.000Z"
+        ]
+      }
+    ]
+  }'

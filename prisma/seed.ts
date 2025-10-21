@@ -13,6 +13,15 @@ const prisma = new PrismaClient();
 const main = async () => {
   console.log('--- Seeding 시작 ---');
 
+  await prisma.contract.deleteMany();
+  await prisma.car.deleteMany();
+  await prisma.customer.deleteMany();
+  await prisma.model.deleteMany();
+  await prisma.manufacturer.deleteMany();
+  await prisma.user.deleteMany();
+  await prisma.company.deleteMany();
+  console.log('[0] 기존 데이터 초기화 완료.');
+
   // 1. Company (회사) 생성
   const company = await prisma.company.create({
     data: {

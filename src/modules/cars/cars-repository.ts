@@ -4,213 +4,223 @@ import { PrismaClient, Prisma, CarStatusEnum } from '@prisma/client';
 const prisma = new PrismaClient();
 
 export type CarListParams = {
-    page?: number;
-    pageSize?: number;
-    status?: CarStatusEnum;
-    searchBy?: 'carNumber' | 'model';
-    keyword?: string;
-    companyId: number;
+  page?: number;
+  pageSize?: number;
+  status?: CarStatusEnum;
+  searchBy?: 'carNumber' | 'model';
+  keyword?: string;
+  companyId: number;
 };
 
 export class CarRepository {
-    findMany = async (params: CarListParams) => {
-        const { page = 1, pageSize = 10, status, searchBy, keyword, companyId } = params;
+  findMany = async (params: CarListParams) => {
+    const { page = 1, pageSize = 10, status, searchBy, keyword, companyId } = params;
 
-        const skip = (page - 1) * pageSize;
-        const where: Prisma.CarWhereInput = { companyId };
+    const skip = (page - 1) * pageSize;
+    const where: Prisma.CarWhereInput = { companyId };
 
-        if (status) {
-            where.status = status;
-        }
+    if (status) {
+      where.status = status;
+    }
 
-        if (keyword && searchBy) {
-            if (searchBy === 'carNumber') {
-                where.carNumber = { contains: keyword, mode: 'insensitive' };
-            } else if (searchBy === 'model') {
-                where.model = {
-                    modelName: { contains: keyword, mode: 'insensitive' },
-                };
-            }
-        }
-
-        const [cars, totalCount] = await Promise.all([
-            prisma.car.findMany({
-                where,
-                skip,
-                take: pageSize,
-                include: {
-                    model: {
-                        include: {
-                            manufacturer: true,
-                        },
-                    },
-                },
-                orderBy: { createdAt: 'desc' },
-            }),
-            prisma.car.count({ where }),
-        ]);
-
-        const formattedCars = cars.map(car => ({
-            id: car.id,
-            carNumber: car.carNumber,
-            manufacturer: car.model.manufacturer.name,
-            model: car.model.modelName,
-            manufacturingYear: car.manufacturingYear,
-            mileage: car.mileage,
-            price: car.price,
-            accidentCount: car.accidentCount,
-            explanation: car.explanation || '',
-            accidentDetails: car.accidentDetails || '',
-            status: car.status,
-            type: car.model.type,
-        }));
-
-        return {
-            data: formattedCars,
-            totalItemCount: totalCount,
-            currentPage: page,
-            totalPages: Math.ceil(totalCount / pageSize),
+    if (keyword && searchBy) {
+      if (searchBy === 'carNumber') {
+        where.carNumber = { contains: keyword, mode: 'insensitive' };
+      } else if (searchBy === 'model') {
+        where.model = {
+          modelName: { contains: keyword, mode: 'insensitive' },
         };
-    };
+      }
+    }
 
-    findById = async (id: number) => {
-        const car = await prisma.car.findUnique({
-            where: { id },
+    const [cars, totalCount] = await Promise.all([
+      prisma.car.findMany({
+        where,
+        skip,
+        take: pageSize,
+        include: {
+          model: {
             include: {
-                model: {
-                    include: {
-                        manufacturer: true,
-                    },
-                },
+              manufacturer: true,
             },
-        });
+          },
+        },
+        orderBy: { createdAt: 'desc' },
+      }),
+      prisma.car.count({ where }),
+    ]);
 
-        if (!car) return null;
+    const formattedCars = cars.map((car) => ({
+      id: car.id,
+      carNumber: car.carNumber,
+      manufacturer: car.model.manufacturer.name,
+      model: car.model.modelName,
+      manufacturingYear: car.manufacturingYear,
+      mileage: car.mileage,
+      price: car.price,
+      accidentCount: car.accidentCount,
+      explanation: car.explanation || '',
+      accidentDetails: car.accidentDetails || '',
+      status: car.status,
+      type: car.model.type,
+    }));
 
-        return {
-            id: car.id,
-            companyId: car.companyId,
-            carNumber: car.carNumber,
-            manufacturer: car.model.manufacturer.name,
-            model: car.model.modelName,
-            manufacturingYear: car.manufacturingYear,
-            mileage: car.mileage,
-            price: car.price,
-            accidentCount: car.accidentCount,
-            explanation: car.explanation || '',
-            accidentDetails: car.accidentDetails || '',
-            status: car.status,
-            type: car.model.type,
-        };
+    return {
+      data: formattedCars,
+      totalItemCount: totalCount,
+      currentPage: page,
+      totalPages: Math.ceil(totalCount / pageSize),
     };
+  };
 
-    create = async (data: Prisma.CarCreateInput) => {
-        const car = await prisma.car.create({
-            data,
-            include: {
-                model: {
-                    include: {
-                        manufacturer: true,
-                    },
-                },
-            },
-        });
+  findById = async (id: number) => {
+    const car = await prisma.car.findUnique({
+      where: { id },
+      include: {
+        model: {
+          include: {
+            manufacturer: true,
+          },
+        },
+      },
+    });
 
-        return {
-            id: car.id,
-            carNumber: car.carNumber,
-            manufacturer: car.model.manufacturer.name,
-            model: car.model.modelName,
-            manufacturingYear: car.manufacturingYear,
-            mileage: car.mileage,
-            price: car.price,
-            accidentCount: car.accidentCount,
-            explanation: car.explanation || '',
-            accidentDetails: car.accidentDetails || '',
-            status: car.status,
-            type: car.model.type,
-        };
+    if (!car) return null;
+
+    return {
+      id: car.id,
+      companyId: car.companyId,
+      carNumber: car.carNumber,
+      manufacturer: car.model.manufacturer.name,
+      model: car.model.modelName,
+      manufacturingYear: car.manufacturingYear,
+      mileage: car.mileage,
+      price: car.price,
+      accidentCount: car.accidentCount,
+      explanation: car.explanation || '',
+      accidentDetails: car.accidentDetails || '',
+      status: car.status,
+      type: car.model.type,
     };
+  };
 
-    update = async (id: number, data: Prisma.CarUpdateInput) => {
-        const car = await prisma.car.update({
-            where: { id },
-            data,
-            include: {
-                model: {
-                    include: {
-                        manufacturer: true,
-                    },
-                },
-            },
-        });
+  create = async (data: Prisma.CarCreateInput) => {
+    const car = await prisma.car.create({
+      data,
+      include: {
+        model: {
+          include: {
+            manufacturer: true,
+          },
+        },
+      },
+    });
 
-        return {
-            id: car.id,
-            carNumber: car.carNumber,
-            manufacturer: car.model.manufacturer.name,
-            model: car.model.modelName,
-            manufacturingYear: car.manufacturingYear,
-            mileage: car.mileage,
-            price: car.price,
-            accidentCount: car.accidentCount,
-            explanation: car.explanation || '',
-            accidentDetails: car.accidentDetails || '',
-            status: car.status,
-            type: car.model.type,
-        };
+    return {
+      id: car.id,
+      carNumber: car.carNumber,
+      manufacturer: car.model.manufacturer.name,
+      model: car.model.modelName,
+      manufacturingYear: car.manufacturingYear,
+      mileage: car.mileage,
+      price: car.price,
+      accidentCount: car.accidentCount,
+      explanation: car.explanation || '',
+      accidentDetails: car.accidentDetails || '',
+      status: car.status,
+      type: car.model.type,
     };
+  };
 
-    delete = async (id: number) => {
-        return await prisma.car.delete({ where: { id } });
-    };
+  update = async (id: number, data: Prisma.CarUpdateInput) => {
+    const car = await prisma.car.update({
+      where: { id },
+      data,
+      include: {
+        model: {
+          include: {
+            manufacturer: true,
+          },
+        },
+      },
+    });
 
-    findAllModels = async () => {
-        return await prisma.model.findMany({
-            include: {
-                manufacturer: true,
-            },
-        });
+    return {
+      id: car.id,
+      carNumber: car.carNumber,
+      manufacturer: car.model.manufacturer.name,
+      model: car.model.modelName,
+      manufacturingYear: car.manufacturingYear,
+      mileage: car.mileage,
+      price: car.price,
+      accidentCount: car.accidentCount,
+      explanation: car.explanation || '',
+      accidentDetails: car.accidentDetails || '',
+      status: car.status,
+      type: car.model.type,
     };
+  };
 
-    findModelByManufacturerAndName = async (manufacturerName: string, modelName: string) => {
-        return await prisma.model.findFirst({
-            where: {
-                manufacturer: {
-                    name: manufacturerName,
-                },
-                modelName: modelName,
-            },
-            include: {
-                manufacturer: true,
-            },
-        });
-    };
+  delete = async (id: number) => {
+    return await prisma.car.delete({ where: { id } });
+  };
 
-    bulkCreate = async (carsData: Array<{
-        modelId: number;
-        companyId: number;
-        carNumber: string;
-        manufacturingYear: number;
-        mileage: number;
-        price: number;
-        accidentCount?: number;
-        explanation?: string | null;
-        accidentDetails?: string | null;
-    }>) => {
-        return await prisma.car.createMany({
-            data: carsData,
-        });
-    };
+  findAllModels = async () => {
+    return await prisma.model.findMany({
+      include: {
+        manufacturer: true,
+      },
+    });
+  };
 
-    findByCarNumber = async (companyId: number, carNumber: string) => {
-        return await prisma.car.findUnique({
-            where: {
-                companyId_carNumber: {
-                    companyId,
-                    carNumber,
-                },
-            },
-        });
-    };
+  findModelByManufacturerAndName = async (
+    manufacturerName: string,
+    modelName: string,
+    tx?: Prisma.TransactionClient,
+  ) => {
+    const client = tx || prisma;
+    return await client.model.findFirst({
+      where: {
+        manufacturer: {
+          name: manufacturerName,
+        },
+        modelName: modelName,
+      },
+      include: {
+        manufacturer: true,
+      },
+    });
+  };
+
+  bulkCreate = async (
+    carsData: Array<{
+      modelId: number;
+      companyId: number;
+      carNumber: string;
+      manufacturingYear: number;
+      mileage: number;
+      price: number;
+      accidentCount?: number;
+      explanation?: string | null;
+      accidentDetails?: string | null;
+    }>,
+    tx?: Prisma.TransactionClient,
+  ) => {
+    const client = tx || prisma;
+    return await client.car.createMany({
+      data: carsData,
+    });
+  };
+
+  findByCarNumber = async (companyId: number, carNumber: string, tx?: Prisma.TransactionClient) => {
+    const client = tx || prisma;
+    return await client.car.findUnique({
+      where: {
+        companyId_carNumber: {
+          companyId,
+          carNumber,
+        },
+      },
+    });
+  };
 }

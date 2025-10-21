@@ -24,6 +24,6 @@
   "ts-node": {
     "files": true
   },
-  "include": ["src/**/*", "src/types/**/*.ts"], // 컴파일할 파일 범위 (src 폴더 아래의 모든 파일)
+  "include": ["src/**/*", "src/types/**/*.ts", "*.d.ts"], // 컴파일할 파일 범위 (src 폴더 아래의 모든 파일)
   "exclude": ["node_modules", "dist"] // 컴파일에서 제외할 폴더
 }

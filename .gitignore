@@ -3,6 +3,7 @@ node_modules
 .env
 *.pdf
 *.http
+*.png
 
 seed.ts
 
@@ -10,7 +11,10 @@ seed.ts
 prisma/migrations
 dist/
 
+
 # JetBrains IDEs
 .idea
 
 .DS_Store
+
+test.http

@@ -1,6 +1,8 @@
 import * as bcrypt from 'bcrypt';
 import { UserRegisterBody } from "./user-types";
 import { userRepository } from "./user-repository";
+import { PrismaClient } from '@prisma/client';
+export const prisma = new PrismaClient();
 
 
 
@@ -85,51 +87,97 @@ export const userService = {
     //////////////////////////////////////////////////////////////////////////////////////////////
 
     //정보 수정
-    async patchMyInfo(
-        userId: number,
-        data: {
-            employeeNumber?: string;
-            phoneNumber?: string;
-            currentPassword: string;
-            password?: string;
-            passwordConfirmation?: string;
-            imageUrl?: string | null;
+    patchMyInfo: async (userId: number, data: any) => {
+        if (!data || Object.keys(data).length === 0) {
+            console.log(data);
+            throw new Error("요청 데이터가 없습니다.");
         }
-    ) {
 
+        const {
+            employeeNumber,
+            phoneNumber,
+            currentPassword,
+            password,
+            passwordConfirmation,
+            imageUrl,
+        } = data;
 
         // ✅ 유저 존재 확인
         const user = await userRepository.findUserById(userId);
+        if (!user) throw new Error("존재하지 않는 유저입니다.");
+
+        // ✅ 비밀번호 변경 로직
+    let newHashedPassword = user.password;
+
+    // 1️⃣ currentPassword가 존재하면 일단 유효성 검증
+    if (currentPassword) {
+      const passwordMatch = await bcrypt.compare(currentPassword, user.password);
+      if (!passwordMatch) throw new Error("현재 비밀번호가 올바르지 않습니다.");
+    }
+
+    // 2️⃣ 새 비밀번호가 있다면 변경
+    if (password && passwordConfirmation) {
+      if (password !== passwordConfirmation)
+        throw new Error("비밀번호와 비밀번호 확인이 일치하지 않습니다.");
+      newHashedPassword = await bcrypt.hash(password, 10);
+    }
+
+    // ✅ 정보 업데이트
+    const updatedUser = await userRepository.updateUser(userId, {
+      employeeNumber: employeeNumber ?? user.employeeNumber,
+      phoneNumber: phoneNumber ?? user.phoneNumber,
+      password: newHashedPassword,
+      imageUrl: imageUrl ?? user.imageUrl,
+    });
+
+        return updatedUser;
+    },
+
+
+    //////////////////////
+
+
+    //회원 탈퇴 
+    deleteMyInfo: async (userId: number) => {
+        // DB에서 해당 userId 유저 검색
+        const user = await userRepository.getUserById(userId);
         if (!user) {
             throw new Error("존재하지 않는 유저입니다.");
         }
 
-        // ✅ 현재 비밀번호 확인
-        const passwordMatch = await bcrypt.compare(data.currentPassword, user.password);
-        if (!passwordMatch) {
-            throw new Error("현재 비밀번호가 올바르지 않습니다.");
+
+        //실제로 유저 삭제
+        await userRepository.deleteUserById(userId)
+
+
+        return { message: "회원 탈퇴 완료" };
+    },
+
+
+    /////////////////////////////////////////
+
+    // ✅ 관리자 전용 유저 삭제
+    deleteUser: async (targetUserId: number, isAdmin: boolean) => {
+        // 1️⃣ 관리자 권한 확인
+        if (!isAdmin) {
+            throw new Error("관리자 권한이 필요합니다.");
         }
 
-        // ✅ 새 비밀번호 확인 (선택적)
-        let newHashedPassword = user.password;
-        if (data.password && data.passwordConfirmation) {
-            if (data.password !== data.passwordConfirmation) {
-                throw new Error("비밀번호와 비밀번호 확인이 일치하지 않습니다.");
+        // 2️⃣ 대상 유저 조회
+        const targetUser = await userRepository.findUserWithCompanyById(targetUserId);
+        if (!targetUser) {
+            throw new Error("존재하지 않는 유저입니다.");
+        }
+
+        // 3️⃣ 트랜잭션 실행 (유저 삭제 + 회사 인원수 감소)
+        await prisma.$transaction(async (tx) => {
+            await userRepository.deleteId(targetUserId, tx);
+
+            if (targetUser.companyId) {
+                await userRepository.decrementCompanyUserCount(targetUser.companyId, tx);
             }
-            newHashedPassword = await bcrypt.hash(data.password, 10);
-        }
+        });
 
-        // 4️⃣ 업데이트 데이터 구성
-        const updateData = {
-            employeeNumber: data.employeeNumber ?? user.employeeNumber,
-            phoneNumber: data.phoneNumber ?? user.phoneNumber,
-            password: newHashedPassword,
-            imageUrl: data.imageUrl ?? user.imageUrl,
-        };
-
-        // 5️⃣ DB 업데이트
-        const updatedUser = await userRepository.updateUser(userId, updateData);
-        return updatedUser;
+        return { message: "유저 삭제 성공" };
     },
 };
-    

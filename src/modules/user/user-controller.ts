@@ -5,6 +5,7 @@ import { JwtPayload } from "jsonwebtoken";
 import { PrismaClient } from '@prisma/client';
 import { userService } from "./user-service";
 import { UserRegisterBody } from "./user-types";
+import { userRepository } from './user-repository';
 
 
 export const prisma = new PrismaClient();
@@ -23,7 +24,6 @@ class userController {
       return res.status(500).json({ message: '서버 오류' });
     }
   };
-}
 
 
 
@@ -32,41 +32,21 @@ class userController {
 
 
 
-// // ✅ 내 정보 조회
-// getMyInfo = async (req: Request, res: Response) => {
-//   try {
-//     const userInfo = (req as any).user; // 토큰에서 가져온 userId
-//     const userId = userInfo.userId;
 
-//     // DB에서 사용자 조회
-//     const user = await prisma.user.findUnique({
-//       where: { id: userId },
-//       select: {
-//         id: true,
-//         name: true,
-//         email: true,
-//         employeeNumber: true,
-//         phoneNumber: true,
-//         imageUrl: true,
-//         isAdmin: true,
-//         company: {
-//           select: {
-//             companyCode: true,
-//           },
-//         },
-//       },
-//     });
+  //  ✅ 내 정보 조회
+  getMyInfo = async (req: Request, res: Response) => {
+    try {
+      const userInfo = (req as any).user;
+      const userId = Number(userInfo.userId);
 
-//     if (!user) {
-//       throw new Error();
-//     }
+      const user = await userService.getMyInfo(userId)
 
-//     return res.status(200).json(user);
-//   } catch (err) {
-//     console.error("/users/me error:", err);
-//     throw new Error();
-//   }
-// };
+      return res.status(200).json(user);
+    } catch (err) {
+      console.error("/users/me error:", err);
+      return res.status(404).json({ message: "유저 정보를 찾을 수 없습니다." });
+    }
+  };
 
 
 
@@ -80,51 +60,32 @@ class userController {
 
 
 
+  //정보 수정
+  async patchMyInfo(req: Request, res: Response) {
+  try {
+    // 토큰에서 유저 ID 추출
+    const decoded = (req as any).user;
+    const userId = decoded.userId;
 
-// //정보 수정
-// patchMyInfo = async (req: Request, res: Response) => {
-//   try {
-//     // 토큰에서 유저 ID 추출
-//     const decoded = (req as any).user as JwtPayload;  //(req as any).user = decoded; // 토큰 검증 후 유저 정보 저장
-//     const userId = decoded.userId;  //그 안의 userId(로그인한 사용자 식별자)를 꺼낸다
+    const updatedUser = await userService.patchMyInfo(userId, req.body);
 
-//     console.log("여기 1", req.body)
-//     const {
-//       employeeNumber,
-//       phoneNumber,
-//       currentPassword,
-//       password,
-//       passwordConfirmation,
-//       imageUrl,
-//     } = req.body;
-
-//     console.log("여기 2")
-
-//     // ✅ 유저 존재 확인
-//     const user = await prisma.user.findUnique({ where: { id: userId } });
-//     if (!user) {
-//       throw new Error("존재하지 않는 유저입니다.");
-//     }
-//     console.log("여기 3")
-//     // ✅ 현재 비밀번호 확인
-//     const passwordMatch = await bcrypt.compare(currentPassword, user.password);
-//     if (!passwordMatch) {
-//       throw new Error("현재 비밀번호가 올바르지 않습니다.");
-//     }
-//     console.log("여기 4")
+    res.status(200).json({
+      message: "회원 정보가 성공적으로 수정되었습니다.",
+      data: updatedUser,
+    });
+  } catch (error: any) {
+    res.status(400).json({ message: error.message || "정보 수정 실패" });
+  }
+},
+};
 
 
-//     // ✅ 새 비밀번호 확인 (선택적)
-//     let newHashedPassword = user.password;
-//     if (password && passwordConfirmation) { //둘 다 입력되어야 실행
-//       if (password !== passwordConfirmation) {
-//         throw new Error("비밀번호와 비밀번호 확인이 일치하지 않습니다.");
-//       }
-//       newHashedPassword = await bcrypt.hash(password, 10);
-//     }
 
 
-//     console.log("여기 5")
+
+
+
+
 
 
 //     // ✅ 정보 업데이트

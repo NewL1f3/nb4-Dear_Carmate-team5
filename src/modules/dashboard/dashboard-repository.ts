@@ -1,4 +1,4 @@
-import prisma from '../lib/prisma';
+import prisma from '../../lib/prisma';
 
 class dashboardRepository {
   aggregatePrice = async (companyId: number, startDay: Date, lastDay: Date) => {

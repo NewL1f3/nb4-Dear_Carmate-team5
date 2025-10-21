@@ -8,6 +8,7 @@ import { contractRouter } from './modules/contracts/contracts-router';
 import { v2 as cloudinary } from 'cloudinary';
 import { startCleanupJob } from './lib/cron-jobs';
 import customerRouter from './modules/customers/customers-router';
+import dashboardRouter from './modules/dashboard/dashboard-router';
 
 dotenv.config();
 
@@ -36,6 +37,7 @@ app.use('/companies', companyRouter);
 app.use('/contracts', contractRouter);
 app.use('/contractDocuments', contractDocumentRouter);
 app.use('/customers', customerRouter);
+app.use('/dashboard', dashboardRouter);
 
 // Cron Job 활성화
 startCleanupJob();

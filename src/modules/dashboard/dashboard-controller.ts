@@ -1,5 +1,5 @@
-import prisma from '../lib/prisma';
-import { unauthorizedError, serverError, databaseCheckError, noCustomerError, badRequestError } from '../lib/errors';
+import prisma from '../../lib/prisma';
+import { unauthorizedError, serverError, databaseCheckError, noCustomerError, badRequestError } from '../../lib/errors';
 import { Request, Response, NextFunction } from 'express';
 import dashboardService from './dashboard-service';
 

@@ -1,4 +1,3 @@
-import prisma from '../lib/prisma';
 import dashboardRepository from './dashboard-repository';
 
 class dashboardService {

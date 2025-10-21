@@ -1,6 +1,6 @@
 import express from 'express';
 import cors from 'cors';
-import { getDashboard } from './dashboard/dashboard-controller';
+import { getDashboard } from './modules/dashboard/dashboard-controller';
 const app = express();
 app.use(express.json());
 //cors 사용하기

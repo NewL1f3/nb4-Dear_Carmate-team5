@@ -47,7 +47,7 @@ export const userService = {
             password: hashedPw,
             companyId: companyRecord.id,
             imageUrl: null,
-            isAdmin: true,
+            isAdmin: false,
         });
 
         // 6️⃣ 회사 영업원 수(userCount) +1

@@ -61,13 +61,11 @@ class dashboardRepository {
         select: {
           id: true,
           model: {
-            select: {
-              type: true,
-            },
+            select: { type: true },
           },
           _count: {
             select: {
-              contracts: true, // 각 Car별 계약 수
+              contracts: { where: { status: 'contractSuccessful' } },
             },
           },
         },
@@ -79,14 +77,22 @@ class dashboardRepository {
     }
   };
 
-  getPriceByModelId = async (companyId: number) => {
+  getSuccesCarIds = async (companyId: number) => {
+    const successfulCarIds = await prisma.contract.findMany({
+      where: { status: 'contractSuccessful', companyId },
+      select: { carId: true },
+    });
+    return successfulCarIds;
+  };
+
+  getPriceByModelId = async (companyId: number, carIds: number[]) => {
     try {
       const carPriceByModelId = await prisma.car.groupBy({
         by: ['modelId'],
         _sum: {
           price: true,
         },
-        where: { companyId },
+        where: { companyId, id: { in: carIds } },
       });
       return carPriceByModelId;
     } catch (error) {

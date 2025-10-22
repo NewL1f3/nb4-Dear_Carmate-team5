@@ -77,7 +77,10 @@ class dashboardService {
   };
 
   getSalesByCarType = async function (companyId: number) {
-    const carPriceByModelId = await dashboardRepository.getPriceByModelId(companyId);
+    const successfulCarIds = await dashboardRepository.getSuccesCarIds(companyId);
+    const successCarIds = await successfulCarIds.map((c) => c.carId);
+
+    const carPriceByModelId = await dashboardRepository.getPriceByModelId(companyId, successCarIds);
 
     const salesByCarTypeMedium = await Promise.all(
       carPriceByModelId.map(async (item) => {

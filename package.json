@@ -16,11 +16,11 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": "",
   "dependencies": {
     "@prisma/client": "^6.16.2",
     "axios": "^1.12.2",
     "bcrypt": "^6.0.0",
+    "buffer-from": "^1.1.2",
     "busboy": "^1.6.0",
     "cloudinary": "^2.7.0",
     "cookie-parser": "^1.4.7",
@@ -34,6 +34,7 @@
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "passport-local": "^1.0.0",
+    "readable-stream": "^4.7.0",
     "zod": "^4.1.12"
   },
   "devDependencies": {

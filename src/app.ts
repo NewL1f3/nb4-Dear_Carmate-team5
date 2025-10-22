@@ -27,9 +27,6 @@ app.use(
 
 app.use(express.json());
 
-// Contract 라우터 등록
-app.use('/users', userRouter);
-app.use('/contracts', contractRouter);
 // Cloudinary 환경 설정
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,

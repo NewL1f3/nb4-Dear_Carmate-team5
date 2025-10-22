@@ -38,10 +38,10 @@ cloudinary.config({
 
 app.use('/companies', companyRouter);
 app.use('/customers', customerRouter);
-app.use('/api/users', userRouter);
-app.use('/api/contracts', contractRouter);
-app.use('/api/contractDocuments', contractDocumentRouter);
-app.use('/api/cars', carRouter);
+app.use('/users', userRouter);
+app.use('/contracts', contractRouter);
+app.use('/contractDocuments', contractDocumentRouter);
+app.use('/cars', carRouter);
 app.use('/uploads', express.static('uploads'));
 
 // Cron Job 활성화

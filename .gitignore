@@ -1,8 +1,23 @@
 node_modules
 # Keep environment variables out of version control
 .env
+*.pdf
+*.http
+*.png
+
+seed.ts
 
 /generated/prisma
 prisma/migrations
-/src/generated/prisma
-.http
+
+dist/
+test
+uploads
+
+# JetBrains IDEs
+.idea
+
+.DS_Store
+
+test.http
+

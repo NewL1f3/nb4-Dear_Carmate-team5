@@ -5,7 +5,6 @@ import { JwtPayload } from "jsonwebtoken";
 import { PrismaClient } from '@prisma/client';
 import { userService } from "./user-service";
 import { UserRegisterBody } from "./user-types";
-import { userRepository } from './user-repository';
 
 
 export const prisma = new PrismaClient();
@@ -34,7 +33,7 @@ class userController {
   getMyInfo = async (req: Request, res: Response) => {
     try {
       const userInfo = (req as any).user;
-      const userId = Number(userInfo.userId);
+      const userId = Number(userInfo.id);
 
       const user = await userService.getMyInfo(userId)
 
@@ -49,14 +48,14 @@ class userController {
 
   // ✅ 내 정보 수정
   patchMyInfo = async (req: Request, res: Response) => {
-     
+
     try {
       const decoded = (req as any).user; // JWT에서 유저 정보 추출
-      const userId = decoded.userId;
+      const userId = decoded.id;
 
       // body를 그대로 서비스에 전달
       const updatedUser = await userService.patchMyInfo(userId, req.body);
-      
+
       return res.status(200).json(updatedUser);
     } catch (error: any) {
       console.error("❌ patchMyInfo error:", error.message);
@@ -75,7 +74,7 @@ class userController {
   deleteMyInfo = async (req: Request, res: Response) => {
     try {
       const userInfo = (req as any).user;
-      const userId = Number(userInfo.userId);
+      const userId = Number(userInfo.id);
 
       const deleteResult = await userService.deleteMyInfo(userId)
       return res.status(200).json(deleteResult);
@@ -106,7 +105,7 @@ class userController {
         return res.status(401).json({ message: "로그인이 필요합니다." });
       }
 
-      const userId = Number(userInfo.userId);
+      const userId = Number(userInfo.id);
       const targetUserId = Number(req.params.userId);
 
       if (isNaN(targetUserId)) {

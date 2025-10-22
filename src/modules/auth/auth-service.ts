@@ -27,7 +27,7 @@ export const authService = {
 
         // 3. JWT 토큰 발급
         const accessToken = jwt.sign( //사용자 정보로 Access/Refresh Token 생성
-            { userId: user.id, email: user.email, isAdmin: user.isAdmin },
+            { id: user.id, companyId: user.companyId, isAdmin: user.isAdmin },
             process.env.JWT_SECRET || "secretkey",
             { expiresIn: "1h" }
         );
@@ -87,7 +87,7 @@ export const authService = {
 
         // 5. 새 토큰 발급
         const newAccessToken = jwt.sign(
-            { userId: user.id, email: user.email },
+            { id: user.id, companyId: user.companyId, isAdmin: user.isAdmin },
             process.env.JWT_SECRET || "secretkey",
             { expiresIn: "1h" }
         );

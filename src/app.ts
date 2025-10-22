@@ -9,6 +9,7 @@ import { contractRouter } from './modules/contracts/contracts-router';
 import { userRouter } from './modules/users/users-router'; //임시
 import { contractDocumentRouter } from './modules/contract-documents/contract-documents-route';
 import customerRouter from './modules/customers/customers-router';
+import dashboardRouter from './modules/dashboard/dashboard-router';
 import carRouter from './modules/cars/cars-router';
 import { startCleanupJob } from './lib/cron-jobs';
 
@@ -26,9 +27,6 @@ app.use(
 
 app.use(express.json());
 
-// Contract 라우터 등록
-app.use('/users', userRouter);
-app.use('/contracts', contractRouter);
 // Cloudinary 환경 설정
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -41,8 +39,10 @@ app.use('/customers', customerRouter);
 app.use('/users', userRouter);
 app.use('/contracts', contractRouter);
 app.use('/contractDocuments', contractDocumentRouter);
+app.use('/customers', customerRouter);
 app.use('/cars', carRouter);
 app.use('/uploads', express.static('uploads'));
+app.use('/dashboard', dashboardRouter);
 
 // Cron Job 활성화
 startCleanupJob();

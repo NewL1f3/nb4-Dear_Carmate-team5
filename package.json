@@ -1,5 +1,5 @@
 {
-  "name": "nb4-dear_carmate-team5",
+  "name": "nb04-dearcarmate-team5",
   "version": "1.0.0",
   "prisma": {
     "seed": "ts-node prisma/seed.ts"
@@ -13,20 +13,14 @@
     "start": "node dist/app.js",
     "build": "tsc"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/NewL1f3/nb4-Dear_Carmate-team5.git"
-  },
+  "keywords": [],
   "author": "",
   "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/NewL1f3/nb4-Dear_Carmate-team5/issues"
-  },
-  "homepage": "https://github.com/NewL1f3/nb4-Dear_Carmate-team5#readme",
   "dependencies": {
     "@prisma/client": "^6.16.2",
     "axios": "^1.12.2",
     "bcrypt": "^6.0.0",
+    "buffer-from": "^1.1.2",
     "busboy": "^1.6.0",
     "cloudinary": "^2.7.0",
     "cookie-parser": "^1.4.7",
@@ -40,6 +34,7 @@
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "passport-local": "^1.0.0",
+    "readable-stream": "^4.7.0",
     "zod": "^4.1.12"
   },
   "devDependencies": {

@@ -37,28 +37,97 @@ const main = async () => {
   console.log(`[2] 사용자 생성 완료: ID ${user.id}`);
 
   // 3. Manufacturer (제조사) 및 Model (모델) 생성 (확장된 데이터)
-  const [hyundai, kia, bmw, benz, chevrolet] = await Promise.all([
-    prisma.manufacturer.create({ data: { name: '현대' } }), // 사용자 요청에 따라 '현대'로 생성
+  const [hyundai, kia, bmw, benz, chevrolet, genesis, audi, tesla, toyota, volkswagen] = await Promise.all([
+    prisma.manufacturer.create({ data: { name: '현대' } }),
     prisma.manufacturer.create({ data: { name: '기아' } }),
     prisma.manufacturer.create({ data: { name: 'BMW' } }),
     prisma.manufacturer.create({ data: { name: '메르세데스-벤츠' } }),
     prisma.manufacturer.create({ data: { name: '쉐보레' } }),
+    prisma.manufacturer.create({ data: { name: '제네시스' } }),
+    prisma.manufacturer.create({ data: { name: '아우디' } }),
+    prisma.manufacturer.create({ data: { name: '테슬라' } }),
+    prisma.manufacturer.create({ data: { name: '토요타' } }),
+    prisma.manufacturer.create({ data: { name: '폭스바겐' } }),
   ]);
-  console.log('[3-1] 제조사 5개 생성 완료');
+  console.log('[3-1] 제조사 10개 생성 완료');
 
   await prisma.model.createMany({
     data: [
+      // 현대
       { manufacturerId: hyundai.id, modelName: '아반떼', type: CarModelTypeEnum.SEDAN },
       { manufacturerId: hyundai.id, modelName: '쏘나타', type: CarModelTypeEnum.SEDAN },
       { manufacturerId: hyundai.id, modelName: '그랜저', type: CarModelTypeEnum.SEDAN },
+      { manufacturerId: hyundai.id, modelName: '투싼', type: CarModelTypeEnum.SUV },
+      { manufacturerId: hyundai.id, modelName: '싼타페', type: CarModelTypeEnum.SUV },
+      { manufacturerId: hyundai.id, modelName: '팰리세이드', type: CarModelTypeEnum.SUV },
+      { manufacturerId: hyundai.id, modelName: '코나', type: CarModelTypeEnum.SUV },
+      { manufacturerId: hyundai.id, modelName: 'i30', type: CarModelTypeEnum.HATCHBACK },
+
+      // 기아
+      { manufacturerId: kia.id, modelName: 'K3', type: CarModelTypeEnum.SEDAN },
       { manufacturerId: kia.id, modelName: 'K5', type: CarModelTypeEnum.SEDAN },
+      { manufacturerId: kia.id, modelName: 'K8', type: CarModelTypeEnum.SEDAN },
       { manufacturerId: kia.id, modelName: '쏘렌토', type: CarModelTypeEnum.SUV },
+      { manufacturerId: kia.id, modelName: '스포티지', type: CarModelTypeEnum.SUV },
+      { manufacturerId: kia.id, modelName: '셀토스', type: CarModelTypeEnum.SUV },
+      { manufacturerId: kia.id, modelName: '카니발', type: CarModelTypeEnum.VAN },
+      { manufacturerId: kia.id, modelName: '스팅어', type: CarModelTypeEnum.SEDAN },
+
+      // 제네시스
+      { manufacturerId: genesis.id, modelName: 'G70', type: CarModelTypeEnum.SEDAN },
+      { manufacturerId: genesis.id, modelName: 'G80', type: CarModelTypeEnum.SEDAN },
+      { manufacturerId: genesis.id, modelName: 'G90', type: CarModelTypeEnum.SEDAN },
+      { manufacturerId: genesis.id, modelName: 'GV70', type: CarModelTypeEnum.SUV },
+      { manufacturerId: genesis.id, modelName: 'GV80', type: CarModelTypeEnum.SUV },
+
+      // BMW
       { manufacturerId: bmw.id, modelName: '3시리즈', type: CarModelTypeEnum.SEDAN },
+      { manufacturerId: bmw.id, modelName: '5시리즈', type: CarModelTypeEnum.SEDAN },
+      { manufacturerId: bmw.id, modelName: '7시리즈', type: CarModelTypeEnum.SEDAN },
+      { manufacturerId: bmw.id, modelName: 'X3', type: CarModelTypeEnum.SUV },
+      { manufacturerId: bmw.id, modelName: 'X5', type: CarModelTypeEnum.SUV },
+      { manufacturerId: bmw.id, modelName: 'X7', type: CarModelTypeEnum.SUV },
+
+      // 벤츠
+      { manufacturerId: benz.id, modelName: 'C클래스', type: CarModelTypeEnum.SEDAN },
       { manufacturerId: benz.id, modelName: 'E클래스', type: CarModelTypeEnum.SEDAN },
+      { manufacturerId: benz.id, modelName: 'S클래스', type: CarModelTypeEnum.SEDAN },
+      { manufacturerId: benz.id, modelName: 'GLC', type: CarModelTypeEnum.SUV },
+      { manufacturerId: benz.id, modelName: 'GLE', type: CarModelTypeEnum.SUV },
+      { manufacturerId: benz.id, modelName: 'GLS', type: CarModelTypeEnum.SUV },
+
+      // 쉐보레
       { manufacturerId: chevrolet.id, modelName: '스파크', type: CarModelTypeEnum.COMPACT },
+      { manufacturerId: chevrolet.id, modelName: '말리부', type: CarModelTypeEnum.SEDAN },
+      { manufacturerId: chevrolet.id, modelName: '임팔라', type: CarModelTypeEnum.SEDAN },
+      { manufacturerId: chevrolet.id, modelName: '트래버스', type: CarModelTypeEnum.SUV },
+
+      // 아우디
+      { manufacturerId: audi.id, modelName: 'A4', type: CarModelTypeEnum.SEDAN },
+      { manufacturerId: audi.id, modelName: 'A6', type: CarModelTypeEnum.SEDAN },
+      { manufacturerId: audi.id, modelName: 'Q5', type: CarModelTypeEnum.SUV },
+      { manufacturerId: audi.id, modelName: 'Q7', type: CarModelTypeEnum.SUV },
+
+      // 테슬라
+      { manufacturerId: tesla.id, modelName: 'Model 3', type: CarModelTypeEnum.SEDAN },
+      { manufacturerId: tesla.id, modelName: 'Model S', type: CarModelTypeEnum.SEDAN },
+      { manufacturerId: tesla.id, modelName: 'Model X', type: CarModelTypeEnum.SUV },
+      { manufacturerId: tesla.id, modelName: 'Model Y', type: CarModelTypeEnum.SUV },
+
+      // 토요타
+      { manufacturerId: toyota.id, modelName: '캠리', type: CarModelTypeEnum.SEDAN },
+      { manufacturerId: toyota.id, modelName: '프리우스', type: CarModelTypeEnum.SEDAN },
+      { manufacturerId: toyota.id, modelName: 'RAV4', type: CarModelTypeEnum.SUV },
+      { manufacturerId: toyota.id, modelName: '하이랜더', type: CarModelTypeEnum.SUV },
+
+      // 폭스바겐
+      { manufacturerId: volkswagen.id, modelName: '제타', type: CarModelTypeEnum.SEDAN },
+      { manufacturerId: volkswagen.id, modelName: '파사트', type: CarModelTypeEnum.SEDAN },
+      { manufacturerId: volkswagen.id, modelName: '티구안', type: CarModelTypeEnum.SUV },
+      { manufacturerId: volkswagen.id, modelName: '투아렉', type: CarModelTypeEnum.SUV },
     ],
   });
-  console.log('[3-2] 모델 8개 생성 완료');
+  console.log('[3-2] 모델 53개 생성 완료');
 
   // 아반떼, 쏘나타, (SUV 대체로) 쏘렌토를 사용합니다.
   const neededModels = await prisma.model.findMany({

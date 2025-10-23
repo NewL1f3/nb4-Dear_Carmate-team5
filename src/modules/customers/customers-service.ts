@@ -14,6 +14,7 @@ import {
   patchServiceInput,
 } from './customers-dto';
 import { AgeGroupEnum, GenderEnum, RegionEnum } from '@prisma/client';
+import customersRepository from './customers-repository';
 
 class customerService {
   postCustomer = async function ({ companyId, data, userId }: postServiceInput) {
@@ -350,7 +351,7 @@ async function checkAuthority(customerId: number, userId: number) {
 }
 
 async function checkUserexist(userId: number) {
-  const user = await prisma.user.findFirst({ where: { id: userId } });
+  const user = await customersRepository.getUserById(userId);
   if (!user) {
     throw new Error('로그인 되어 있지 않습니다.');
   }

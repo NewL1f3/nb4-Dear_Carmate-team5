@@ -221,7 +221,7 @@ const main = async () => {
       mileage: 50000,
       price: 15000000,
       explanation: '깔끔하게 관리된 아반떼 차량입니다.',
-      status: CarStatusEnum.possession,
+      status: CarStatusEnum.contractCompleted,
     },
     // 2. 쏘나타 (model: createdModels[1])
     {
@@ -231,7 +231,7 @@ const main = async () => {
       mileage: 15000,
       price: 25000000,
       explanation: '신형 쏘나타, 거의 신차급입니다.',
-      status: CarStatusEnum.possession,
+      status: CarStatusEnum.contractCompleted,
     },
     // 3. 쏘렌토 (model: createdModels[2] - 기존 싼타페 대체)
     {
@@ -241,7 +241,7 @@ const main = async () => {
       mileage: 30000,
       price: 30000000,
       explanation: '패밀리 SUV 쏘렌토, 넉넉한 공간.',
-      status: CarStatusEnum.possession,
+      status: CarStatusEnum.contractCompleted,
     },
   ];
 

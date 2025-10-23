@@ -83,7 +83,7 @@ class customerService {
     const customerCount = await customerRepository.countCustomers(where);
 
     const currentPage = page;
-    const totalPages = Math.floor(customerCount / pageSizeNum) + 1;
+    const totalPages = Math.ceil(customerCount / pageSizeNum);
     const totalItemCount = customerCount;
 
     //customers 포매팅

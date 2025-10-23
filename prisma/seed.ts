@@ -7,6 +7,7 @@ import {
   ContractStatusEnum,
   CarModelTypeEnum,
 } from '@prisma/client';
+import * as bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
 
@@ -17,7 +18,7 @@ const main = async () => {
   const company = await prisma.company.create({
     data: {
       companyName: '베스트 카 매니지먼트',
-      companyCode: 'BCM-001',
+      companyCode: '0001',
     },
   });
   console.log(`[1] 회사 생성 완료: ID ${company.id}`);
@@ -31,10 +32,21 @@ const main = async () => {
       employeeNumber: '2024001',
       phoneNumber: '010-1234-5678',
       isAdmin: true,
-      password: 'password123',
+      password: await bcrypt.hash('password123', 10),
     },
   });
-  console.log(`[2] 사용자 생성 완료: ID ${user.id}`);
+  const user2 = await prisma.user.create({
+    data: {
+      companyId: company.id,
+      name: '테스트유저',
+      email: 'test1@bcm.com',
+      employeeNumber: '2024002',
+      phoneNumber: '010-1234-5678',
+      isAdmin: false,
+      password: await bcrypt.hash('password123', 10),
+    },
+  });
+  console.log(`[2] 사용자 생성 완료: ID ${user.id}, ${user2.id}`);
 
   // 3. Manufacturer (제조사) 및 Model (모델) 생성 (확장된 데이터)
   const [hyundai, kia, bmw, benz, chevrolet, genesis, audi, tesla, toyota, volkswagen] = await Promise.all([
@@ -256,7 +268,7 @@ const main = async () => {
   for (const contractData of contractsData) {
     const contract = await prisma.contract.create({
       data: {
-        userId: user.id,
+        userId: user2.id,
         companyId: company.id,
         customerId: createdCustomers[contractData.customerIndex].id,
         carId: createdCars[contractData.carIndex].id,

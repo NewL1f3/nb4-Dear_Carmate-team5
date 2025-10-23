@@ -1,8 +1,8 @@
 import prisma from '../../lib/prisma';
-import type { Prisma } from '@prisma/client';
+import type { Prisma, CarStatusEnum } from '@prisma/client';
 
 export const contractRepository = {
-  findCarById: (id: number) => prisma.car.findUnique({ where: { id }, include: { model: true } }),
+  findCarByIdWithStatus: (id: number, status: CarStatusEnum) => prisma.car.findFirst({ where: { id, status }, include: { model: true } }),
 
   findCustomerById: (id: number) => prisma.customer.findUnique({ where: { id } }),
 
@@ -79,11 +79,9 @@ export const contractRepository = {
       },
     }),
 
-  deleteContract: (id: number) => prisma.contract.delete({ where: { id } }),
-
-  findCarsByCompany: (companyId: number) =>
+  findCarsByCompany: (companyId: number, status: CarStatusEnum) =>
     prisma.car.findMany({
-      where: { companyId },
+      where: { companyId, status },
       select: { id: true, carNumber: true, model: { select: { modelName: true } } },
     }),
 
@@ -97,5 +95,11 @@ export const contractRepository = {
     prisma.user.findMany({
       where: { companyId },
       select: { id: true, name: true, email: true },
+    }),
+
+  updateCarStatus: (carId: number, status: CarStatusEnum) =>
+    prisma.car.update({
+      where: { id: carId },
+      data: { status },
     }),
 };

@@ -75,23 +75,12 @@ class customerService {
     }
 
     const customers = await customerRepository.getManyCustomers({ where, skip, limit, companyId });
-    // let modifiedCustomers = [];
-    //contractCount 최신화
-    // for (const customer of customers) {
-    //   const customerId = customer.id;
-    //   const contractCount = await prisma.contract.count({ where: { customerId } });
-    //   const modifiedCustomer = await prisma.customer.update({
-    //     where: { id: customerId },
-    //     data: { contractCount },
-    //   });
-    //   modifiedCustomers.push(modifiedCustomer);
-    // }
 
     //프론트에서 요구하는 값 구하기
     const customerCount = await customerRepository.countCustomers(where);
 
     const currentPage = page;
-    const totalPages = Math.floor(customerCount / pageSizeNum) + 1;
+    const totalPages = Math.ceil(customerCount / pageSizeNum);
     const totalItemCount = customerCount;
 
     //customers 포매팅

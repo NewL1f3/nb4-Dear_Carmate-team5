@@ -1,18 +1,17 @@
-import express, { Request, Response, NextFunction } from 'express';
-import jwt from "jsonwebtoken";
-
+import type { Request, Response, NextFunction } from 'express';
+import jwt from 'jsonwebtoken';
 
 // 내 정보조회
 // ✅ 인증 미들웨어
 const authenticateToken = (req: Request, res: Response, next: NextFunction) => {
-  const authHeader = req.headers["authorization"];
-  const token = authHeader && authHeader.split(" ")[1]; 
+  const authHeader = req.headers['authorization'];
+  const token = authHeader && authHeader.split(' ')[1];
 
   if (!token) {
-   throw new Error();
+    throw new Error();
   }
 
-  jwt.verify(token, process.env.JWT_SECRET || "secretkey", (err, decoded) => {
+  jwt.verify(token, process.env.JWT_SECRET || 'secretkey', (err, decoded) => {
     if (err) {
       throw new Error();
     }

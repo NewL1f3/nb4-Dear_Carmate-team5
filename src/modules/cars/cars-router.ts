@@ -3,7 +3,7 @@ import { Router } from 'express';
 import { CarRepository } from './cars-repository';
 import { CarService } from './cars-service';
 import { CarController } from './cars-controller';
-import { mockAuthMiddleware } from '../../middlewares/mock-auth-middleware';
+import authenticateToken from '../../middleware/auth-middleware';
 import multer from 'multer';
 
 const upload = multer({ dest: 'uploads/' });
@@ -15,16 +15,16 @@ const carController = new CarController(carService);
 
 router.get('/models', carController.getCarModels);
 
-router.post('/upload', mockAuthMiddleware, upload.single('file'), carController.uploadCars);
+router.post('/upload', authenticateToken, upload.single('file'), carController.uploadCars);
 
-router.get('/', mockAuthMiddleware, carController.getCars);
+router.get('/', authenticateToken, carController.getCars);
 
-router.post('/', mockAuthMiddleware, carController.createCar);
+router.post('/', authenticateToken, carController.createCar);
 
-router.get('/:carId', mockAuthMiddleware, carController.getCarById);
+router.get('/:carId', authenticateToken, carController.getCarById);
 
-router.patch('/:carId', mockAuthMiddleware, carController.updateCar);
+router.patch('/:carId', authenticateToken, carController.updateCar);
 
-router.delete('/:carId', mockAuthMiddleware, carController.deleteCar);
+router.delete('/:carId', authenticateToken, carController.deleteCar);
 
 export default router;

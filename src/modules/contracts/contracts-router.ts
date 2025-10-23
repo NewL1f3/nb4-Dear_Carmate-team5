@@ -1,11 +1,10 @@
 import express from 'express';
 import { contractController } from './contracts-controller';
-import { mockAuthMiddleware } from '../../middlewares/mock-auth-middleware';
+import authenticateToken from '../../middleware/auth-middleware';
 
 export const contractRouter = express.Router();
 
-// 모든 contract 라우트에 mockAuthMiddleware 적용
-contractRouter.use(mockAuthMiddleware);
+contractRouter.use(authenticateToken);
 
 // Contract CRUD
 contractRouter.post('/', contractController.create);

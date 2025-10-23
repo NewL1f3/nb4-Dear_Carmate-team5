@@ -1,16 +1,15 @@
-import express from "express";
-import companyController from "./company-controller";
-import { requireAuth } from "../../middlewares/auth";
-import { mockAuthMiddleware } from "../../middlewares/mocK-middleware";
+import express from 'express';
+import companyController from './company-controller';
+import { requireAuth } from '../../middlewares/auth';
+import authenticateToken from '../../middleware/auth-middleware';
 
 const companyRouter = express.Router();
 
-
-companyRouter.post('/',mockAuthMiddleware, requireAuth, companyController.postCompany);
-companyRouter.get('/', mockAuthMiddleware, requireAuth, companyController.getCompanies);
-companyRouter.get('/users', mockAuthMiddleware, requireAuth, companyController.getcompanyUsers)
-companyRouter.patch('/:companyId', mockAuthMiddleware, requireAuth, companyController.updateCompany);
-companyRouter.delete('/:companyId', mockAuthMiddleware, requireAuth, companyController.deleteCompany);
+companyRouter.post('/', authenticateToken, requireAuth, companyController.postCompany);
+companyRouter.get('/', authenticateToken, requireAuth, companyController.getCompanies);
+companyRouter.get('/users', authenticateToken, requireAuth, companyController.getcompanyUsers);
+companyRouter.patch('/:companyId', authenticateToken, requireAuth, companyController.updateCompany);
+companyRouter.delete('/:companyId', authenticateToken, requireAuth, companyController.deleteCompany);
 
 /*
 

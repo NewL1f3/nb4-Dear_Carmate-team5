@@ -9,6 +9,7 @@ seed.ts
 
 /generated/prisma
 prisma/migrations
+
 dist/
 test
 uploads
@@ -19,3 +20,4 @@ uploads
 .DS_Store
 
 test.http
+

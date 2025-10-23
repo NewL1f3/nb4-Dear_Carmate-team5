@@ -1,12 +1,12 @@
 import express, { Request, Response, NextFunction } from 'express';
 import dotenv from 'dotenv';
 import cors from 'cors';
-import cookieParser from 'cookie-parser';
 import { v2 as cloudinary } from 'cloudinary';
 
+import userRouter from "./modules/user/user-router";
+import authRouter from "./modules/auth/auth-router";
 import companyRouter from './modules/company/company-router';
 import { contractRouter } from './modules/contracts/contracts-router';
-import { userRouter } from './modules/users/users-router'; //임시
 import { contractDocumentRouter } from './modules/contract-documents/contract-documents-route';
 import customerRouter from './modules/customers/customers-router';
 import dashboardRouter from './modules/dashboard/dashboard-router';
@@ -36,13 +36,14 @@ cloudinary.config({
 
 app.use('/companies', companyRouter);
 app.use('/customers', customerRouter);
-app.use('/users', userRouter);
 app.use('/contracts', contractRouter);
 app.use('/contractDocuments', contractDocumentRouter);
 app.use('/customers', customerRouter);
 app.use('/cars', carRouter);
 app.use('/uploads', express.static('uploads'));
 app.use('/dashboard', dashboardRouter);
+app.use("/users", userRouter);
+app.use("/auth", authRouter);
 
 // Cron Job 활성화
 startCleanupJob();

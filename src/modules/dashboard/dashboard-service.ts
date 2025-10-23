@@ -1,4 +1,5 @@
 import dashboardRepository from './dashboard-repository';
+import { serverError, databaseCheckError } from '../../lib/errors';
 
 class dashboardService {
   getThisMonthSales = async function (companyId: number) {
@@ -104,6 +105,24 @@ class dashboardService {
       ),
     );
     return salesByCarType;
+  };
+
+  checkCompany = async (companyId: number) => {
+    try {
+      const company = await dashboardRepository.getCompanybyId(companyId);
+      if (!company) {
+        throw serverError;
+      }
+    } catch (error) {
+      throw databaseCheckError;
+    }
+  };
+
+  checkUser = async (userId: number) => {
+    const user = await dashboardRepository.getUserbyId(userId);
+    if (!user) {
+      throw serverError;
+    }
   };
 }
 

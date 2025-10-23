@@ -1,7 +1,7 @@
 import express from 'express';
 import companyController from './company-controller';
 import { requireAuth } from '../../middlewares/auth';
-import authenticateToken from '../../middleware/auth-middleware';
+import authenticateToken from '../../middlewares/auth-middleware';
 
 const companyRouter = express.Router();
 

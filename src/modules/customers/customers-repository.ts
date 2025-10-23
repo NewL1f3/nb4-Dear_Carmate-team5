@@ -44,6 +44,7 @@ class customerRepository {
       });
       return patchCustomer;
     } catch (error) {
+      console.error(error);
       throw databaseCheckError;
     }
   };
@@ -55,6 +56,7 @@ class customerRepository {
         where: { id: customerId },
       });
     } catch (error) {
+      console.error(error);
       throw databaseCheckError;
     }
     return customer;
@@ -66,6 +68,7 @@ class customerRepository {
         where: { id: customerId },
       });
     } catch (error) {
+      console.error(error);
       throw databaseCheckError;
     }
   };

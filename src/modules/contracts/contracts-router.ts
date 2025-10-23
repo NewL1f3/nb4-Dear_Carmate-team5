@@ -1,6 +1,6 @@
 import express from 'express';
 import { contractController } from './contracts-controller';
-import authenticateToken from '../../middleware/auth-middleware';
+import authenticateToken from '../../middlewares/auth-middleware';
 
 export const contractRouter = express.Router();
 

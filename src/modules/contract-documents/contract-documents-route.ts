@@ -3,7 +3,7 @@ import * as contractDocumentController from './contract-documents-controller';
 import { asyncHandler } from '../../middlewares/async-handler';
 import { validateId, validateGetQuery } from './contract-documents-dto';
 import { contractDocumentUpload } from '../../middlewares/cloudinary-upload-middleware';
-import authenticateToken from '../../middleware/auth-middleware';
+import authenticateToken from '../../middlewares/auth-middleware';
 
 const contractDocumentRouter = express.Router();
 

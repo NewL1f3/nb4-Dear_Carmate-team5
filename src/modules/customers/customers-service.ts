@@ -157,15 +157,16 @@ class customerService {
     checkUserexist(userId);
     let customer;
     //customer 있는지 확인 및 가져오기, 고객과 유저의 회사가 같은지 인가
-
+    const user = await customerRepository.getUserById(userId);
     try {
       customer = await customerRepository.findCustomer(customerId);
       if (!customer) {
         throw noCustomerError;
-      } else if (userId != customer.companyId) {
+      } else if (user?.companyId != customer.companyId) {
         throw new Error('관리할 수 없는 고객입니다');
       }
     } catch (error) {
+      console.error(error);
       throw databaseCheckError;
     }
 
@@ -332,6 +333,7 @@ async function checkCustomerExist(customerId: number) {
       throw noCustomerError;
     }
   } catch (error) {
+    console.error(error);
     throw databaseCheckError;
   }
 }
@@ -339,13 +341,15 @@ async function checkCustomerExist(customerId: number) {
 async function checkAuthority(customerId: number, userId: number) {
   let customer;
   try {
+    const user = await customerRepository.getUserById(userId);
     customer = await customerRepository.findCustomer(customerId);
     if (!customer) {
       throw noCustomerError;
-    } else if (userId != customer.companyId) {
+    } else if (user?.companyId != customer.companyId) {
       throw new Error('관리할 수 없는 고객입니다');
     }
   } catch (error) {
+    console.error(error);
     throw databaseCheckError;
   }
 }

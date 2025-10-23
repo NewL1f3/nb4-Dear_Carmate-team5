@@ -3,7 +3,7 @@ import { Router } from 'express';
 import { CarRepository } from './cars-repository';
 import { CarService } from './cars-service';
 import { CarController } from './cars-controller';
-import authenticateToken from '../../middleware/auth-middleware';
+import authenticateToken from '../../middlewares/auth-middleware';
 import multer from 'multer';
 
 const upload = multer({ dest: 'uploads/' });

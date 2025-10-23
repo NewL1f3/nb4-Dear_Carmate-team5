@@ -76,6 +76,16 @@ class customerRepository {
       skipDuplicates: true,
     });
   };
+
+  getUserById = async (id: number) => {
+    try {
+      const user = await prisma.user.findFirst({ where: { id } });
+      return user;
+    } catch (error) {
+      console.error(error);
+      throw new Error('데이터베이스 에러 발생');
+    }
+  };
 }
 
 export default new customerRepository();

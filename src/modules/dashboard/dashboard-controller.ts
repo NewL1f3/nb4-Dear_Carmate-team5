@@ -2,29 +2,17 @@ import prisma from '../../lib/prisma';
 import { unauthorizedError, serverError, databaseCheckError, noCustomerError, badRequestError } from '../../lib/errors';
 import { Request, Response, NextFunction } from 'express';
 import dashboardService from './dashboard-service';
+import { dashboardRequest } from './dashboard-dto';
 
-export async function getDashboard(req: Request, res: Response, next: NextFunction) {
+export async function getDashboard(req: dashboardRequest, res: Response, next: NextFunction) {
   //유저 불러오기 및 로그인 확인
+  const userId = +req.user.id;
 
-  // const user = req.user;
-  const user = await prisma.user.findFirst();
-  if (!user) {
-    throw unauthorizedError;
-  }
-
-  const companyId = user.companyId;
+  const companyId = +req.user.companyId;
   //user가 속하는 company가 있는지 확인
-  try {
-    const company = await prisma.company.findUnique({
-      where: { id: companyId },
-    });
-    if (!company) {
-      throw serverError;
-    }
-  } catch (error) {
-    throw databaseCheckError;
-  }
 
+  await dashboardService.checkCompany(companyId);
+  await dashboardService.checkUser(userId);
   // 이달의 매출
   const monthlySales = await dashboardService.getThisMonthSales(companyId);
 

@@ -1,5 +1,6 @@
 import { AgeGroupEnum, GenderEnum, RegionEnum } from '@prisma/client';
 import type { Customer, Company, Prisma } from '@prisma/client';
+import { Request } from 'express';
 import z from 'zod';
 //controller에서 사용
 // import { CustomerSearchParams } from './customers-dto';
@@ -80,6 +81,7 @@ export interface User {
 export interface postServiceInput {
   companyId: number;
   data: any;
+  userId: number;
 }
 
 export interface getManyServiceInput {
@@ -88,6 +90,7 @@ export interface getManyServiceInput {
   searchBy: string;
   keyword: string;
   companyId: number;
+  userId: number;
 }
 
 export interface patchServiceInput {
@@ -165,3 +168,7 @@ export const getManyCustomerSchema = z.object({
 });
 
 //
+
+export interface customerRequest extends Request {
+  user?: any;
+}

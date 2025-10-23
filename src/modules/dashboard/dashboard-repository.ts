@@ -113,6 +113,28 @@ class dashboardRepository {
       throw new Error('데이터베이스 에러');
     }
   };
+
+  getCompanybyId = async (companyId: number) => {
+    try {
+      const company = await prisma.company.findUnique({
+        where: { id: companyId },
+      });
+      return company;
+    } catch (error) {
+      throw new Error('데이터베이스 에러');
+    }
+  };
+
+  getUserbyId = async (userId: number) => {
+    try {
+      const user = await prisma.user.findUnique({
+        where: { id: userId },
+      });
+      return user;
+    } catch (error) {
+      throw new Error('데이터베이스 에러');
+    }
+  };
 }
 
 export default new dashboardRepository();

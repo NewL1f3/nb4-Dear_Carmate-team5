@@ -73,7 +73,7 @@ export const contractService = {
     }, defaultStructure);
   },
 
-  async updateContract(contractId: number, data: UpdateContractDto) {
+  async updateContract(userId: number, contractId: number, data: UpdateContractDto) {
     const parsed = updateContractSchema.safeParse(data);
     if (!parsed.success) {
       throw new Error(parsed.error.issues.map((e) => e.message).join(', '));
@@ -83,6 +83,9 @@ export const contractService = {
 
     const existing = await contractRepository.findContractById(contractId);
     if (!existing) throw new Error('Contract not found');
+
+    if (userId !== existing.userId) 
+      throw new Error('계약을 수정할 권한이 없습니다.');
 
     if (['contractSuccessful', 'contractFailed'].includes(existing.status)) {
       throw new Error('완료된 계약입니다.');

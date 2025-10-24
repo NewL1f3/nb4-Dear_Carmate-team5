@@ -17,10 +17,11 @@ dotenv.config();
 
 const app = express();
 
-// 프론트랑 연결 하기위해 임시로 적어놨습니다.
+const allowedOrigin = process.env.CORS_ORIGIN || 'http://localhost:3000';
+
 app.use(
   cors({
-    origin: 'http://localhost:3000',
+    origin: allowedOrigin,
     credentials: true,
   }),
 );

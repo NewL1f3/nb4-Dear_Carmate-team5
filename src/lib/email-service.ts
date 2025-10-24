@@ -9,18 +9,18 @@ export interface AttachmentInfo {
 
 // Nodemailer 트랜스포터 설정
 const transporter = nodemailer.createTransport({
-  host: process.env.SMTP_HOST || 'smtp.ethereal.email',
+  host: process.env.SMTP_HOST,
   port: parseInt(process.env.SMTP_PORT || '587'),
   // 587 포트 사용 시 secure: false
   // 465 포트 사용 시 secure: true
   secure: process.env.SMTP_SECURE === 'true',
   auth: {
-    user: process.env.SMTP_USER || 'test.user@ethereal.email',
-    pass: process.env.SMTP_PASS || 'some_password',
+    user: process.env.SMTP_USER,
+    pass: process.env.SENDGRID_API_KEY,
   },
-  tls: {
-    rejectUnauthorized: true,
-  },
+  // tls: {
+  //   rejectUnauthorized: true,
+  // },
 });
 
 // 계약서 첨부 이메일 발송
@@ -34,7 +34,7 @@ export const sendContractEmail = async (
   }
 
   try {
-    const fromEmail = process.env.SMTP_USER;
+    const fromEmail = `'카메이트 팀' <${process.env.VERIFIED_SENDER_EMAIL}>`;
 
     const info = await transporter.sendMail({
       // 발신자 주소

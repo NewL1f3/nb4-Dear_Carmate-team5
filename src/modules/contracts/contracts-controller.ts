@@ -45,7 +45,7 @@ export const contractController = {
         return res.status(200).json(contractData);
       }
 
-      const updatedContract = await contractService.updateContract(contractId, req.body);
+      const updatedContract = await contractService.updateContract(userId, contractId, req.body);
       res.status(200).json(updatedContract);
     } catch (err: any) {
       console.error(err);

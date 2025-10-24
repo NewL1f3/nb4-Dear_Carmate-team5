@@ -14,9 +14,12 @@ import {
   patchServiceInput,
 } from './customers-dto';
 import { AgeGroupEnum, GenderEnum, RegionEnum } from '@prisma/client';
+import customersRepository from './customers-repository';
 
 class customerService {
-  postCustomer = async function ({ companyId, data }: postServiceInput) {
+  postCustomer = async function ({ companyId, data, userId }: postServiceInput) {
+    checkUserexist(userId);
+
     const bodyParsed = customerBodySchema.safeParse(data);
     if (!bodyParsed.success) {
       throw badRequestError;
@@ -43,7 +46,8 @@ class customerService {
     return newCustomer;
   };
 
-  getManyCustomer = async function ({ page, pageSize, searchBy, keyword, companyId }: getManyServiceInput) {
+  getManyCustomer = async function ({ page, pageSize, searchBy, keyword, companyId, userId }: getManyServiceInput) {
+    checkUserexist(userId);
     //type 변환하기
     const pageNum: number = +page;
     const pageSizeNum: number = +pageSize;
@@ -80,7 +84,7 @@ class customerService {
     const customerCount = await customerRepository.countCustomers(where);
 
     const currentPage = page;
-    const totalPages = Math.floor(customerCount / pageSizeNum) + 1;
+    const totalPages = Math.ceil(customerCount / pageSizeNum);
     const totalItemCount = customerCount;
 
     //customers 포매팅
@@ -103,6 +107,7 @@ class customerService {
   };
 
   patchCustomer = async function ({ data, customerId, companyId, userId }: patchServiceInput) {
+    checkUserexist(userId);
     let { ageGroup, region, gender, ...otherData } = data;
 
     //한글 영어로 변환
@@ -140,6 +145,7 @@ class customerService {
   };
 
   deleteCustomer = async function (customerId: number, userId: number) {
+    checkUserexist(userId);
     //인가 과정
     checkAuthority(customerId, userId);
 
@@ -148,17 +154,19 @@ class customerService {
   };
 
   getOneCustomer = async function (customerId: number, userId: number) {
+    checkUserexist(userId);
     let customer;
     //customer 있는지 확인 및 가져오기, 고객과 유저의 회사가 같은지 인가
-
+    const user = await customerRepository.getUserById(userId);
     try {
       customer = await customerRepository.findCustomer(customerId);
       if (!customer) {
         throw noCustomerError;
-      } else if (userId != customer.companyId) {
+      } else if (user?.companyId != customer.companyId) {
         throw new Error('관리할 수 없는 고객입니다');
       }
     } catch (error) {
+      console.error(error);
       throw databaseCheckError;
     }
 
@@ -166,7 +174,8 @@ class customerService {
     return response;
   };
 
-  uploadCustomers = async function (rows: any[], companyId: number) {
+  uploadCustomers = async function (rows: any[], companyId: number, userId: number) {
+    checkUserexist(userId);
     const requiredFields = ['name', 'email'];
     const formattedRows: any[] = [];
 
@@ -324,6 +333,7 @@ async function checkCustomerExist(customerId: number) {
       throw noCustomerError;
     }
   } catch (error) {
+    console.error(error);
     throw databaseCheckError;
   }
 }
@@ -331,13 +341,22 @@ async function checkCustomerExist(customerId: number) {
 async function checkAuthority(customerId: number, userId: number) {
   let customer;
   try {
+    const user = await customerRepository.getUserById(userId);
     customer = await customerRepository.findCustomer(customerId);
     if (!customer) {
       throw noCustomerError;
-    } else if (userId != customer.companyId) {
+    } else if (user?.companyId != customer.companyId) {
       throw new Error('관리할 수 없는 고객입니다');
     }
   } catch (error) {
+    console.error(error);
     throw databaseCheckError;
+  }
+}
+
+async function checkUserexist(userId: number) {
+  const user = await customersRepository.getUserById(userId);
+  if (!user) {
+    throw new Error('로그인 되어 있지 않습니다.');
   }
 }

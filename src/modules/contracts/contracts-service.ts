@@ -1,5 +1,5 @@
 import { contractRepository } from './contracts-repository';
-import type { Prisma } from '@prisma/client';
+import { Prisma, CarStatusEnum } from '@prisma/client';
 import { formatContract } from '../../utils/formatContract';
 import {
   contractResponseSchema,
@@ -12,6 +12,7 @@ import {
 import type { LinkContractData } from './contracts-dto';
 import { sendContractEmail } from '../../lib/email-service';
 import { createDownloadUrl } from '../../lib/cloudinary-service';
+import prisma from '../../lib/prisma';
 
 export const contractService = {
   async createContract(user: Express.User, body: CreateContractDto): Promise<ContractResponse> {
@@ -22,7 +23,7 @@ export const contractService = {
 
     const { carId, customerId, meetings } = parsed.data;
 
-    const car = await contractRepository.findCarById(carId);
+    const car = await contractRepository.findCarByIdWithStatus(carId, CarStatusEnum.possession);
     if (!car) throw new Error('Car not found');
 
     const customer = await contractRepository.findCustomerById(customerId);
@@ -43,6 +44,8 @@ export const contractService = {
       status: 'carInspection',
       meetings: { create: meetingData },
     });
+
+    await contractRepository.updateCarStatus(carId, CarStatusEnum.contractProceeding);
 
     const dto = formatContract(contract);
     return contractResponseSchema.parse(dto);
@@ -70,15 +73,23 @@ export const contractService = {
     }, defaultStructure);
   },
 
-  async updateContract(contractId: number, data: UpdateContractDto) {
+  async updateContract(userId: number, contractId: number, data: UpdateContractDto) {
     const parsed = updateContractSchema.safeParse(data);
     if (!parsed.success) {
       throw new Error(parsed.error.issues.map((e) => e.message).join(', '));
     }
 
     const validated = parsed.data;
+
     const existing = await contractRepository.findContractById(contractId);
     if (!existing) throw new Error('Contract not found');
+
+    if (userId !== existing.userId) 
+      throw new Error('계약을 수정할 권한이 없습니다.');
+
+    if (['contractSuccessful', 'contractFailed'].includes(existing.status)) {
+      throw new Error('완료된 계약입니다.');
+    }
 
     const updateData: Prisma.ContractUpdateInput = {
       status: validated.status,
@@ -98,18 +109,65 @@ export const contractService = {
         : undefined,
     };
 
-    const updated = await contractRepository.updateContract(contractId, updateData);
+    const updated = await prisma.$transaction(async (tx) => {
+      if (existing.carId) {
+        if (updateData.status === 'contractSuccessful') {
+          await tx.car.update({
+            where: { id: existing.carId },
+            data: { status: CarStatusEnum.contractCompleted },
+          });
+
+          if (existing.customerId) {
+            await tx.customer.update({
+              where: { id: existing.customerId },
+              data: { contractCount: { increment: 1 } },
+            });
+          }
+        } else if (updateData.status === 'contractFailed') {
+          await tx.car.update({
+            where: { id: existing.carId },
+            data: { status: CarStatusEnum.possession },
+          });
+        }
+      }
+
+      return tx.contract.update({
+        where: { id: contractId },
+        data: updateData,
+        include: {
+          meetings: true,
+          contractDocuments: true,
+          car: { include: { model: true } },
+          user: true,
+          customer: true,
+        },
+      });
+    });
 
     const dto = formatContract(updated);
     return contractResponseSchema.parse(dto);
   },
 
   async deleteContract(id: number): Promise<void> {
-    await contractRepository.deleteContract(id);
+    const contract = await contractRepository.findContractById(id);
+    if (!contract) throw new Error('Contract not found');
+
+    await prisma.$transaction(async (tx) => {
+      if (contract.carId) {
+        await tx.car.update({
+          where: { id: contract.carId },
+          data: { status: CarStatusEnum.possession },
+        });
+      }
+
+      await tx.contract.delete({
+        where: { id },
+      });
+    });
   },
 
   async getCarInfo(companyId: number) {
-    const cars = await contractRepository.findCarsByCompany(companyId);
+    const cars = await contractRepository.findCarsByCompany(companyId, CarStatusEnum.possession);
     return cars.map((car) => ({
       id: car.id,
       data: `${car.model.modelName} (${car.carNumber})`,

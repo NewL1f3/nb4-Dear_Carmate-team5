@@ -44,6 +44,7 @@ class customerRepository {
       });
       return patchCustomer;
     } catch (error) {
+      console.error(error);
       throw databaseCheckError;
     }
   };
@@ -55,6 +56,7 @@ class customerRepository {
         where: { id: customerId },
       });
     } catch (error) {
+      console.error(error);
       throw databaseCheckError;
     }
     return customer;
@@ -66,6 +68,7 @@ class customerRepository {
         where: { id: customerId },
       });
     } catch (error) {
+      console.error(error);
       throw databaseCheckError;
     }
   };
@@ -75,6 +78,16 @@ class customerRepository {
       data: rows,
       skipDuplicates: true,
     });
+  };
+
+  getUserById = async (id: number) => {
+    try {
+      const user = await prisma.user.findFirst({ where: { id } });
+      return user;
+    } catch (error) {
+      console.error(error);
+      throw new Error('데이터베이스 에러 발생');
+    }
   };
 }
 

@@ -1,13 +1,17 @@
 import express from 'express';
 import dotenv from 'dotenv';
-import { userRouter } from './modules/users/users-router'; // 임시
-import companyRouter from './modules/company/company-router';
 import cors from 'cors';
-import { contractDocumentRouter } from './modules/contract-documents/contract-documents-route';
-import { contractRouter } from './modules/contracts/contracts-router';
 import { v2 as cloudinary } from 'cloudinary';
-import { startCleanupJob } from './lib/cron-jobs';
+import authRouter from './modules/auth/auth-router';
+import userRouter from './modules/user/user-router';
+import companyRouter from './modules/company/company-router';
+import carRouter from './modules/cars/cars-router';
 import customerRouter from './modules/customers/customers-router';
+import { contractRouter } from './modules/contracts/contracts-router';
+import { contractDocumentRouter } from './modules/contract-documents/contract-documents-route';
+import dashboardRouter from './modules/dashboard/dashboard-router';
+import { imageRouter } from './modules/images/images-route';
+import { startCleanupJob } from './lib/cron-jobs';
 
 dotenv.config();
 
@@ -32,11 +36,15 @@ cloudinary.config({
 });
 
 app.use('/uploads', express.static('uploads'));
+app.use('/auth', authRouter);
 app.use('/users', userRouter);
 app.use('/companies', companyRouter);
+app.use('/cars', carRouter);
+app.use('/customers', customerRouter);
 app.use('/contracts', contractRouter);
 app.use('/contractDocuments', contractDocumentRouter);
-app.use('/customers', customerRouter);
+app.use('/dashboard', dashboardRouter);
+app.use('/images', imageRouter);
 
 // Cron Job 활성화
 startCleanupJob();

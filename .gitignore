@@ -8,7 +8,16 @@ node_modules
 seed.ts
 
 /generated/prisma
-prisma/migrations/
+prisma/migrations
+
 dist/
+test
+uploads
+
+# JetBrains IDEs
+.idea
+
+.DS_Store
 
 test.http
+

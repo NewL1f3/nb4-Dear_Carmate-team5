@@ -36,9 +36,9 @@ CREATE TABLE "User" (
     "email" VARCHAR(255) NOT NULL,
     "employeeNumber" VARCHAR(50) NOT NULL,
     "phoneNumber" VARCHAR(20) NOT NULL,
-    "imageUrl" VARCHAR(2083),
     "isAdmin" BOOLEAN NOT NULL DEFAULT false,
     "password" VARCHAR(255) NOT NULL,
+    "imageId" INTEGER,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -147,6 +147,17 @@ CREATE TABLE "ContractDocument" (
     CONSTRAINT "ContractDocument_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateTable
+CREATE TABLE "Image" (
+    "id" SERIAL NOT NULL,
+    "fileUrl" VARCHAR(2083) NOT NULL,
+    "publicId" VARCHAR(255) NOT NULL,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+
+    CONSTRAINT "Image_pkey" PRIMARY KEY ("id")
+);
+
 -- CreateIndex
 CREATE UNIQUE INDEX "Company_companyName_key" ON "Company"("companyName");
 
@@ -155,6 +166,9 @@ CREATE UNIQUE INDEX "Company_companyCode_key" ON "Company"("companyCode");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "User_email_key" ON "User"("email");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "User_imageId_key" ON "User"("imageId");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "User_employeeNumber_companyId_key" ON "User"("employeeNumber", "companyId");
@@ -176,6 +190,9 @@ CREATE UNIQUE INDEX "Car_companyId_carNumber_key" ON "Car"("companyId", "carNumb
 
 -- AddForeignKey
 ALTER TABLE "User" ADD CONSTRAINT "User_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "User" ADD CONSTRAINT "User_imageId_fkey" FOREIGN KEY ("imageId") REFERENCES "Image"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Customer" ADD CONSTRAINT "Customer_companyId_fkey" FOREIGN KEY ("companyId") REFERENCES "Company"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

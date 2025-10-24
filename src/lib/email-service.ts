@@ -8,7 +8,7 @@ export interface AttachmentInfo {
 }
 
 // Nodemailer 트랜스포터 설정
-const transporterConfig = {
+const transporter = nodemailer.createTransport({
   host: process.env.SMTP_HOST,
   port: parseInt(process.env.SMTP_PORT || '587'),
   // 587 포트 사용 시 secure: false
@@ -16,25 +16,13 @@ const transporterConfig = {
   secure: process.env.SMTP_SECURE === 'true',
   auth: {
     user: process.env.SMTP_USER,
-    pass: process.env.SENDGRID_API_KEY,
+    pass: process.env.GMAIL_APP_PASSWORD,
   },
+  requireTLS: true,
   // tls: {
   //   rejectUnauthorized: true,
   // },
-};
-
-// 디버깅을 위해 설정 값을 로그에 출력합니다. (API 키는 마스킹)
-console.log('--- Nodemailer Transporter Config ---');
-console.log('Host:', transporterConfig.host);
-console.log('Port:', transporterConfig.port);
-console.log('Secure:', transporterConfig.secure);
-console.log('User:', transporterConfig.auth.user);
-// API 키가 로드되었는지 여부만 확인합니다.
-console.log('Pass (Key Loaded?):', !!transporterConfig.auth.pass);
-console.log('-----------------------------------');
-
-// SendGrid SMTP 설정 기준으로 트랜스포터 생성
-const transporter = nodemailer.createTransport(transporterConfig);
+});
 
 // 계약서 첨부 이메일 발송
 export const sendContractEmail = async (
@@ -47,7 +35,7 @@ export const sendContractEmail = async (
   }
 
   try {
-    const fromEmail = `'카메이트 팀' <${process.env.VERIFIED_SENDER_EMAIL}>`;
+    const fromEmail = `'카메이트 팀' <${process.env.SMTP_USER}>`;
 
     const info = await transporter.sendMail({
       // 발신자 주소

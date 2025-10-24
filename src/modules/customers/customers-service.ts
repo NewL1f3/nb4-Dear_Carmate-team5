@@ -83,7 +83,7 @@ class customerService {
     //프론트에서 요구하는 값 구하기
     const customerCount = await customerRepository.countCustomers(where);
 
-    const currentPage = page;
+    const currentPage = pageNum;
     const totalPages = Math.ceil(customerCount / pageSizeNum);
     const totalItemCount = customerCount;
 

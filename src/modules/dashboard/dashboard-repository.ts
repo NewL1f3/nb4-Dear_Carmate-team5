@@ -9,10 +9,11 @@ class dashboardRepository {
         },
         where: {
           companyId,
-          createdAt: {
+          resolutionDate: {
             gte: startDay,
             lt: lastDay,
           },
+          status: 'contractSuccessful',
         },
       });
       return monthlySalesMedium;

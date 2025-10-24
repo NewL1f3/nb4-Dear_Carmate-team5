@@ -8,7 +8,7 @@ export interface AttachmentInfo {
 }
 
 // Nodemailer 트랜스포터 설정
-const transporter = nodemailer.createTransport({
+const transporterConfig = {
   host: process.env.SMTP_HOST,
   port: parseInt(process.env.SMTP_PORT || '587'),
   // 587 포트 사용 시 secure: false
@@ -21,7 +21,20 @@ const transporter = nodemailer.createTransport({
   // tls: {
   //   rejectUnauthorized: true,
   // },
-});
+};
+
+// 디버깅을 위해 설정 값을 로그에 출력합니다. (API 키는 마스킹)
+console.log('--- Nodemailer Transporter Config ---');
+console.log('Host:', transporterConfig.host);
+console.log('Port:', transporterConfig.port);
+console.log('Secure:', transporterConfig.secure);
+console.log('User:', transporterConfig.auth.user);
+// API 키가 로드되었는지 여부만 확인합니다.
+console.log('Pass (Key Loaded?):', !!transporterConfig.auth.pass);
+console.log('-----------------------------------');
+
+// SendGrid SMTP 설정 기준으로 트랜스포터 생성
+const transporter = nodemailer.createTransport(transporterConfig);
 
 // 계약서 첨부 이메일 발송
 export const sendContractEmail = async (

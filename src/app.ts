@@ -1,10 +1,21 @@
 import express from 'express';
 import dotenv from 'dotenv';
+<<<<<<< HEAD
 import cors from 'cors';
 import { v2 as cloudinary } from 'cloudinary';
 import authRouter from './modules/auth/auth-router';
 import userRouter from './modules/user/user-router';
 import companyRouter from './modules/company/company-router';
+=======
+import { userRouter } from './modules/users/users-router';
+import { contractRouter } from './modules/contracts/contracts-router';
+import { contractDocumentRouter } from './modules/contract-documents/contract-documents-route';
+import { v2 as cloudinary } from 'cloudinary';
+import cors from 'cors';
+import companyRouter from './modules/company/company-router';
+import customerRouter from './modules/customers/customers-router';
+import dashboardRouter from './modules/dashboard/dashboard-router';
+>>>>>>> af3428a ([feat] 에러핸들러 생성)
 import carRouter from './modules/cars/cars-router';
 import customerRouter from './modules/customers/customers-router';
 import { contractRouter } from './modules/contracts/contracts-router';
@@ -12,6 +23,7 @@ import { contractDocumentRouter } from './modules/contract-documents/contract-do
 import dashboardRouter from './modules/dashboard/dashboard-router';
 import { imageRouter } from './modules/images/images-route';
 import { startCleanupJob } from './lib/cron-jobs';
+import { errorHandler } from './middlewares/error-handler';
 
 dotenv.config();
 
@@ -47,5 +59,7 @@ app.use('/images', imageRouter);
 
 // Cron Job 활성화
 startCleanupJob();
+
+app.use(errorHandler);
 
 app.listen(process.env.PORT || 3001, () => console.log('서버 시작'));

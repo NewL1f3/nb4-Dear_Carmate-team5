@@ -40,7 +40,7 @@ export const userService = {
       phoneNumber,
       password: hashedPw,
       companyId: companyRecord.id,
-      imageUrl: null,
+      imageId: null,
       isAdmin: false,
     });
 
@@ -61,7 +61,21 @@ export const userService = {
       throw new Error('존재하지 않는 유저입니다.');
     }
 
-    return user;
+    // 데이터 가공
+    const userData = {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      employeeNumber: user.employeeNumber,
+      phoneNumber: user.phoneNumber,
+      isAdmin: user.isAdmin,
+      company: {
+        companyName: user.company.companyCode,
+      },
+      imageUrl: user.image?.fileUrl,
+    };
+
+    return userData;
   },
 
   //////////////////////////////////////////////////////////////////////////////////////////////
@@ -73,7 +87,7 @@ export const userService = {
       throw new Error('요청 데이터가 없습니다.');
     }
 
-    const { employeeNumber, phoneNumber, currentPassword, password, passwordConfirmation, imageUrl } = data;
+    const { employeeNumber, phoneNumber, currentPassword, password, passwordConfirmation, imageId } = data;
 
     // ✅ 유저 존재 확인
     const user = await userRepository.findUserById(userId);
@@ -95,14 +109,34 @@ export const userService = {
     }
 
     // ✅ 정보 업데이트
-    const updatedUser = await userRepository.updateUser(userId, {
+    const updateData = {
       employeeNumber: employeeNumber ?? user.employeeNumber,
       phoneNumber: phoneNumber ?? user.phoneNumber,
       password: newHashedPassword,
-      imageUrl: imageUrl ?? user.imageUrl,
-    });
+      ...(imageId && {
+        image: {
+          connect: { id: imageId },
+        },
+      }),
+    };
 
-    return updatedUser;
+    const updatedUser = await userRepository.updateUser(userId, updateData);
+
+    // 데이터 가공
+    const userData = {
+      id: updatedUser.id,
+      name: updatedUser.name,
+      email: updatedUser.email,
+      employeeNumber: updatedUser.employeeNumber,
+      phoneNumber: updatedUser.phoneNumber,
+      isAdmin: updatedUser.isAdmin,
+      company: {
+        companyName: updatedUser.company.companyCode,
+      },
+      imageUrl: updatedUser.image?.fileUrl,
+    };
+
+    return userData;
   },
 
   //////////////////////

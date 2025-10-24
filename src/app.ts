@@ -12,6 +12,7 @@ import { contractDocumentRouter } from './modules/contract-documents/contract-do
 import dashboardRouter from './modules/dashboard/dashboard-router';
 import { imageRouter } from './modules/images/images-route';
 import { startCleanupJob } from './lib/cron-jobs';
+import { errorHandler } from './middlewares/error-handler';
 
 dotenv.config();
 
@@ -48,5 +49,7 @@ app.use('/images', imageRouter);
 
 // Cron Job 활성화
 startCleanupJob();
+
+app.use(errorHandler);
 
 app.listen(process.env.PORT || 3001, () => console.log('서버 시작'));

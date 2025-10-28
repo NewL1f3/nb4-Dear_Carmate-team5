@@ -105,6 +105,41 @@
 
 <br> <br/>
 
+-차량 시드 제작
+<img width="948" height="342" alt="차량시드1" src="https://github.com/user-attachments/assets/8df91595-902b-402e-9cb5-0bb3a4d2c4a5" />
+<img width="1163" height="822" alt="차량시드" src="https://github.com/user-attachments/assets/84b870aa-baba-4bb6-aefa-e43ee1a69211" />
+
+-차량 생성
+
+![차량생성](https://github.com/user-attachments/assets/2fec19fe-0fbd-4e3e-8962-bc7a2483daa8)
+
+-차량 수정 상세 조회
+
+![차량정보수정상세조회](https://github.com/user-attachments/assets/52290675-8070-47bc-bda7-4018abf2b7ec)
+
+-차량 삭제
+
+![차량삭제](https://github.com/user-attachments/assets/e5112a1e-2640-4ba9-8b38-6f40068463ae)
+
+-차량 업로드 에러 처리
+
+![차량등록에러처리](https://github.com/user-attachments/assets/d791f01d-a403-4e7c-8ff9-c502912fa9d9)
+
+-대용량 차량 업로드
+
+![대용량차량등록](https://github.com/user-attachments/assets/cb2f8584-7652-4a0f-965b-f6adaf7d4480)
+
+-대용량 차량 업로드 에러 처리
+
+![대용량업로드에러처리](https://github.com/user-attachments/assets/8767ae3b-2ccc-4332-9b80-a4bc4b3398a1)
+
+-ERD 이미지 제작
+<img width="1043" height="1288" alt="화면 캡처 2025-10-01 190415" src="https://github.com/user-attachments/assets/f6690126-243c-4267-b7b6-2ec119dd6b2c" />
+<img width="1333" height="1002" alt="Untitled (4)" src="https://github.com/user-attachments/assets/dbf61eeb-01fa-403f-a9cb-dc304173ac0d" />
+
+-TSCONFIG 기초틀 제시
+<img width="935" height="653" alt="화면 캡처 2025-10-28 143354" src="https://github.com/user-attachments/assets/9618345d-b944-4e90-a152-30e32fd861d3" />
+
 </details>
 
 ### 손준영

@@ -178,6 +178,8 @@
 -TSCONFIG 기초틀 제시
 <img width="935" height="653" alt="화면 캡처 2025-10-28 143354" src="https://github.com/user-attachments/assets/9618345d-b944-4e90-a152-30e32fd861d3" />
 
+-간단한 SQL, URL, CSV Injection 공격 방어 능력 테스트
+
 </details>
 
 ### 손준영
